@@ -1,13 +1,13 @@
 # purescript-multi
 
-Trying out multi-package PureScript project using purs-nix.
+Trying out Nixification of a multi-package PureScript project using [purs-nix](https://github.com/purs-nix/purs-nix).
 
 ## Layout
 
-This repository has two packages:
+Like [haskell-multi-nix](https://github.com/srid/haskell-multi-nix), this repository has two packages:
 
-- ./foo
-- TODO
+- [x] ./foo -- a PureScript library.
+- [ ] ./bar -- a PureScript executable, that depends on ./foo
 
 ## Building packages
 
