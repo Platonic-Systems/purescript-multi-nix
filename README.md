@@ -6,8 +6,8 @@ Trying out Nixification of a multi-package PureScript project using [purs-nix](h
 
 Like [haskell-multi-nix](https://github.com/srid/haskell-multi-nix), this repository has two packages:
 
-- [x] ./foo -- a PureScript library.
-- [ ] ./bar -- a PureScript executable, that depends on ./foo
+- `./foo` -- a PureScript library.
+- `./bar` -- a PureScript executable, that depends on ./foo
 
 ## Building packages
 
@@ -34,6 +34,34 @@ nix build .#foo-js
 This produces the compiled JavaScript at ./result.
 
 TODO: How to evaluate this in node repl?
+
+### Building the ./bar application
+
+Using the instructions above on how to build the ./foo package, we can likewise build the ./bar application:
+
+``` sh
+nix build .#bar
+```
+
+The above is of course not very useful, so let us build the ./bar application JS bundle:
+
+``` sh
+nix build .#bar-js
+```
+
+Now we can run the result directly in the NodeJS evaluator!
+
+``` sh-session
+❯ node ./result
+Nix, Nix
+Nix, Nix
+Nix, Nix
+```
+
+`
+
+`
+
 
 ## Dev shell
 

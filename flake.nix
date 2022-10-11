@@ -12,6 +12,7 @@
       systems = [ "x86_64-linux" "x86_64-darwin" ];
       imports = [
         ./foo
+        ./bar
       ];
       perSystem = { self', system, pkgs, ... }: {
         devShells.default = pkgs.mkShell { };
