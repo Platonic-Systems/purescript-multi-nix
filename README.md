@@ -1,4 +1,4 @@
-# purescript-multi
+# purescript-multi-nix
 
 Trying out Nixification of a multi-package PureScript project using [purs-nix](https://github.com/purs-nix/purs-nix).
 

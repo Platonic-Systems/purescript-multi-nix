@@ -9,7 +9,6 @@
         inherit dependencies;
         dir = ./.;
       };
-
     in
     {
       packages.foo = purs-nix.build {
@@ -23,7 +22,5 @@
           format = "cjs";
         };
       };
-
     };
-
 }
