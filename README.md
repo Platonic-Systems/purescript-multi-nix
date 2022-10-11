@@ -1,6 +1,6 @@
 # purescript-multi-nix
 
-Trying out Nixification of a multi-package PureScript project using [purs-nix](https://github.com/purs-nix/purs-nix).
+A demo of a multi-package PureScript project (monorepo) nixified using [purs-nix](https://github.com/purs-nix/purs-nix).
 
 ## Layout
 
@@ -33,7 +33,7 @@ nix build .#foo-js
 
 This produces the compiled JavaScript at ./result.
 
-TODO: How to evaluate this in node repl?
+TODO: How to evaluate this (the library function) the NodeJS repl?
 
 ### Building the ./bar application
 
@@ -57,10 +57,6 @@ Nix, Nix
 Nix, Nix
 Nix, Nix
 ```
-
-`
-
-`
 
 
 ## Dev shell
