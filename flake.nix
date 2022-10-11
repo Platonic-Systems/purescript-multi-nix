@@ -12,7 +12,8 @@
     flake-parts.lib.mkFlake { inherit self; } {
       systems = [ "x86_64-linux" "x86_64-darwin" ];
       perSystem = { self', system, pkgs, ... }: {
-        devShells.default = pkgs.mkShell {};
+        devShells.default = pkgs.mkShell { };
+        formatter = pkgs.nixpkgs-fmt;
       };
     };
 }
