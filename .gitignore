@@ -1,3 +1,9 @@
 .direnv
 result
 /output
+
+.psci_modules
+.purs-repl
+
+# purs-nix bundle
+main.js
