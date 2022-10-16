@@ -61,4 +61,4 @@ Nix, Nix
 
 ## Dev shell
 
-TODO
+The dev shell is a **work-in-progress**. Since purs-nix itself *does not* support a multi-package `purs-nix` command yet, we create a ghost top-level package and then produce the `purs-nix` command for it. See `devShells.default` in flake.nix.
