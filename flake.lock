@@ -477,15 +477,16 @@
         "utils": "utils_4"
       },
       "locked": {
-        "lastModified": 1663698271,
-        "narHash": "sha256-qdUW0+RBTsr6l91/jRRV+De7F+PeKYiWd7QNd+KQtFg=",
+        "lastModified": 1665787108,
+        "narHash": "sha256-h7wZte0taPOaC6Wqu110gmeZL/sKSet3KKg0zj2YLH4=",
         "owner": "purs-nix",
         "repo": "purs-nix",
-        "rev": "91500b44e223f37fea7bc02c62f5394fea921458",
+        "rev": "0ba9509579c30687f9a1cd24336ed2a5ec27be01",
         "type": "github"
       },
       "original": {
         "owner": "purs-nix",
+        "ref": "docs-preview",
         "repo": "purs-nix",
         "type": "github"
       }
