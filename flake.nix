@@ -3,7 +3,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
 
-    purs-nix.url = "github:purs-nix/purs-nix/docs-preview";
+    purs-nix.url = "github:purs-nix/purs-nix";
     purs-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
