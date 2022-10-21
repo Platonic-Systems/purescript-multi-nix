@@ -26,6 +26,13 @@
               })
             ];
         };
+        packages.default = pkgs.writeShellApplication {
+          name = "purescript-multi";
+          text = ''
+            set -x
+            ${lib.getExe pkgs.nodejs} ${self'.packages.bar-js}
+          '';
+        };
         devShells.default = pkgs.mkShell {
           name = "purescript-multi-nix";
           buildInputs =

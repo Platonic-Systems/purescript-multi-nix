@@ -58,6 +58,8 @@ Nix, Nix
 Nix, Nix
 ```
 
+Alternatively: `nix run`.
+
 
 ## Dev shell
 
