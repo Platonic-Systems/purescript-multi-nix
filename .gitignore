@@ -1,10 +1,10 @@
 .direnv
 result
 /output
-.vscode
 
 .psci_modules
 .purs-repl
+.psc-ide-port
 
 # purs-nix bundle
 main.js
