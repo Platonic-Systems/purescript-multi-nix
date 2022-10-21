@@ -5,6 +5,9 @@
 
     purs-nix.url = "github:purs-nix/purs-nix";
     purs-nix.inputs.nixpkgs.follows = "nixpkgs";
+    # Workaround: https://github.com/purs-nix/purs-nix/issues/32
+    fenix.follows = "purs-nix/statix/fenix";
+    fenix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = inputs@{ self, flake-parts, nixpkgs, ... }:
