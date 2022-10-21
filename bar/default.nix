@@ -13,11 +13,13 @@
       };
     in
     {
-      packages.bar = config.purs-nix.build {
+      packages.bar = (config.purs-nix.build {
         name = "bar";
         src.path = ./.;
         info = { inherit dependencies; };
-      };
+      }).overrideAttrs (config.purs-nix-multi.inject-info {
+        src-globs = [ "bar/src/**/*.purs" ];
+      });
       packages.bar-js = ps.modules.Main.bundle {
         esbuild = {
           format = "cjs";

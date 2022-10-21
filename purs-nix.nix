@@ -47,17 +47,32 @@
                       dependencies = allDependenciesOf (lib.attrValues localPackages);
                     };
 
+                  # HACK: Since we do not use the likes of cabal or spago, it is
+                  # impossible to get relative src globs without explicitly
+                  # having the developer specify them (in passthru; see further
+                  # below).
+                  localPackagesSrcGlobs =
+                    lib.concatMap (p: p.purs-nix-info-extra.src-globs) (lib.attrValues localPackages);
+
                   toplevel-ps-command = toplevel-ps.command {
-                    src-globs = lib.concatStringsSep " " [
-                      # TODO: DRY: How to get this from purs-nix metadata of each
-                      # item in `local-pkgs`?  Currently we are hardcoding the globs
-                      # here, but this is not general enough.
-                      "foo/src/**/*.purs"
-                      "bar/src/**/*.purs"
-                    ];
+                    src-globs = lib.concatStringsSep " " localPackagesSrcGlobs;
                   };
                 in
                 toplevel-ps-command;
+            };
+
+            inject-info = lib.mkOption {
+              type = lib.types.functionTo (lib.types.functionTo (lib.types.attrsOf lib.types.raw));
+              description = ''
+                Via passthru, inject purs-nix-info-extra which is like
+                purs-nix-info but contains additional metadata necessary to be
+                able to create purs-nix 'command' objects.
+              '';
+              default = attrs: old: {
+                passthru = (old.passthru or { }) // {
+                  purs-nix-info-extra = attrs;
+                };
+              };
             };
           };
         };

@@ -10,11 +10,13 @@
       };
     in
     {
-      packages.foo = config.purs-nix.build {
+      packages.foo = (config.purs-nix.build {
         name = "foo";
         src.path = ./.;
         info = { inherit dependencies; };
-      };
+      }).overrideAttrs (config.purs-nix-multi.inject-info {
+        src-globs = [ "foo/src/**/*.purs" ];
+      });
       packages.foo-js = ps.modules.Foo.bundle {
         main = false;
         esbuild = {
