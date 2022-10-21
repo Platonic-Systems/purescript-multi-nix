@@ -7,7 +7,11 @@
       };
 
       purs-nix-multi = lib.mkOption {
-        description = "Multi-package project support for purs-nix";
+        description = ''
+          Multi-package project support for purs-nix
+
+          See `build-local-package` and `multi-command`.
+        '';
         default = { };
         type = lib.types.submodule {
           options = {
@@ -61,21 +65,33 @@
                 toplevel-ps-command;
             };
 
-            # TODO: Supercede this by writing a buildLocalPackage package that
-            # returns a package with passthru set for everything (including
-            # 'ps').
-            inject-info = lib.mkOption {
-              type = lib.types.functionTo (lib.types.functionTo (lib.types.attrsOf lib.types.raw));
+            build-local-package = lib.mkOption {
+              type = lib.types.functionTo lib.types.package;
               description = ''
-                Via passthru, inject purs-nix-info-extra which is like
-                purs-nix-info but contains additional metadata necessary to be
-                able to create purs-nix 'command' objects.
+                Build a local PureScript package
               '';
-              default = attrs: old: {
-                passthru = (old.passthru or { }) // {
-                  purs-nix-info-extra = attrs;
-                };
-              };
+              default = attrs@{ name, root, dependencies, src-globs }:
+                let
+                  buildAttrs = {
+                    inherit name;
+                    src.path = root;
+                    info = { inherit dependencies; };
+                  };
+                  psAttrs = {
+                    inherit dependencies;
+                    dir = root;
+                  };
+                  ps = config.purs-nix.purs psAttrs;
+                  pkg = config.purs-nix.build buildAttrs;
+                  passthruAttrs = {
+                    purs-nix-info-extra = {
+                      inherit ps src-globs;
+                    };
+                  };
+                in
+                pkg.overrideAttrs (oa: {
+                  passthru = (oa.passthru or { }) // passthruAttrs;
+                });
             };
           };
         };

@@ -1,24 +1,18 @@
 { self, ... }: {
   perSystem = { self', config, inputs', system, pkgs, ... }:
     let
-      dependencies = with config.purs-nix.ps-pkgs; [
-        matrices
-      ];
-      ps = config.purs-nix.purs {
-        inherit dependencies;
-        dir = ./.;
+      pkg = config.purs-nix-multi.build-local-package {
+        name = "foo";
+        root = ./.;
+        dependencies = with config.purs-nix.ps-pkgs; [
+          matrices
+        ];
+        src-globs = [ "foo/src/**/*.purs" ];
       };
     in
     {
-      packages.foo = (config.purs-nix.build {
-        name = "foo";
-        src.path = ./.;
-        info = { inherit dependencies; };
-      }).overrideAttrs (config.purs-nix-multi.inject-info {
-        inherit ps;
-        src-globs = [ "foo/src/**/*.purs" ];
-      });
-      packages.foo-js = ps.modules.Foo.bundle {
+      packages.foo = pkg;
+      packages.foo-js = pkg.purs-nix-info-extra.ps.modules.Foo.bundle {
         main = false;
         esbuild = {
           format = "cjs";
