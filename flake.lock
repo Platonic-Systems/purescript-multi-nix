@@ -492,14 +492,13 @@
     },
     "root": {
       "inputs": {
-        "fenix": [
-          "purs-nix",
-          "statix",
-          "fenix"
-        ],
         "flake-parts": "flake-parts",
         "nixpkgs": "nixpkgs",
-        "purs-nix": "purs-nix"
+        "purs-nix": "purs-nix",
+        "statix": [
+          "purs-nix",
+          "statix"
+        ]
       }
     },
     "rust-analyzer-src": {
