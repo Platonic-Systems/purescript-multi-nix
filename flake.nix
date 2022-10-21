@@ -37,22 +37,21 @@
           name = "purescript-multi-nix";
           buildInputs =
             let
-              local-pkgs = [ self'.packages.foo self'.packages.bar ];
               # HACK: purs-nix has no multi-pacakge support; so we string
               # together 'dependencies' of local packages to create a top-level
               # phantom one and create the purs-nix command for it. This is how
               # pkgs.haskellPackges.shellFor funtion in nixpkgs works to create
               # a Haskell development shell for multiple packages.
-              toplevel-ps = config.purs-nix.purs {
-                dependencies =
-                  lib.subtractLists local-pkgs
-                    (lib.concatMap
-                      (pkg: pkg.purs-nix-info.dependencies)
-                      local-pkgs);
-              };
+              toplevel-ps =
+                config.purs-nix.purs {
+                  dependencies =
+                    config.transitive-dependencies
+                      (lib.attrValues config.local-packages);
+                };
             in
             [
               config.purs-nix.purescript
+              pkgs.nixpkgs-fmt
               (toplevel-ps.command {
                 src-globs = lib.concatStringsSep " " [
                   # TODO: DRY: How to get this from purs-nix metadata of each
