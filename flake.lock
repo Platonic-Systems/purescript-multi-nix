@@ -477,11 +477,11 @@
         "utils": "utils_4"
       },
       "locked": {
-        "lastModified": 1663698271,
-        "narHash": "sha256-qdUW0+RBTsr6l91/jRRV+De7F+PeKYiWd7QNd+KQtFg=",
+        "lastModified": 1666124404,
+        "narHash": "sha256-aArvsmkMc+LF2wEdLryiX/kqzMjtLsbcniIuSfFKgxg=",
         "owner": "purs-nix",
         "repo": "purs-nix",
-        "rev": "91500b44e223f37fea7bc02c62f5394fea921458",
+        "rev": "66427405d2a3e0c2491646a6efc1716ce3731f3d",
         "type": "github"
       },
       "original": {

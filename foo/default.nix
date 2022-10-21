@@ -1,17 +1,16 @@
 { self, ... }: {
-  perSystem = { self', inputs', system, pkgs, ... }:
+  perSystem = { self', config, inputs', system, pkgs, ... }:
     let
-      purs-nix = self.inputs.purs-nix { inherit system; };
-      dependencies = with purs-nix.ps-pkgs; [
+      dependencies = with config.purs-nix.ps-pkgs; [
         matrices
       ];
-      ps = purs-nix.purs {
+      ps = config.purs-nix.purs {
         inherit dependencies;
         dir = ./.;
       };
     in
     {
-      packages.foo = purs-nix.build {
+      packages.foo = config.purs-nix.build {
         name = "foo";
         src.path = ./.;
         info = { inherit dependencies; };

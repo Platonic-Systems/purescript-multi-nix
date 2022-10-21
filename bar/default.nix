@@ -1,20 +1,19 @@
 { self, ... }: {
-  perSystem = { self', inputs', system, pkgs, ... }:
+  perSystem = { self', config, inputs', system, pkgs, ... }:
     let
-      purs-nix = self.inputs.purs-nix { inherit system; };
-      dependencies = with purs-nix.ps-pkgs; [
+      dependencies = with config.purs-nix.ps-pkgs; [
         prelude
         effect
         console
-        self'.packages.foo
+        foo
       ];
-      ps = purs-nix.purs {
+      ps = config.purs-nix.purs {
         inherit dependencies;
         dir = ./.;
       };
     in
     {
-      packages.bar = purs-nix.build {
+      packages.bar = config.purs-nix.build {
         name = "bar";
         src.path = ./.;
         info = { inherit dependencies; };
