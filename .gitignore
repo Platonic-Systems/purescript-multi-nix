@@ -1,6 +1,7 @@
 .direnv
 result
 /output
+.vscode
 
 .psci_modules
 .purs-repl
