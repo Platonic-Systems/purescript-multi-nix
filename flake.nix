@@ -45,14 +45,10 @@
               toplevel-ps =
                 config.purs-nix.purs {
                   dependencies =
-                    config.transitive-dependencies
-                      (lib.attrValues config.local-packages);
+                    config.purs-nix-multi.transitive-dependencies
+                      (lib.attrValues config.purs-nix-multi.local-packages);
                 };
-            in
-            [
-              config.purs-nix.purescript
-              pkgs.nixpkgs-fmt
-              (toplevel-ps.command {
+              toplevel-ps-command = toplevel-ps.command {
                 src-globs = lib.concatStringsSep " " [
                   # TODO: DRY: How to get this from purs-nix metadata of each
                   # item in `local-pkgs`?  Currently we are hardcoding the globs
@@ -60,7 +56,12 @@
                   "foo/src/**/*.purs"
                   "bar/src/**/*.purs"
                 ];
-              })
+              };
+            in
+            [
+              config.purs-nix.purescript
+              toplevel-ps-command
+              pkgs.nixpkgs-fmt
             ];
         };
         formatter = pkgs.nixpkgs-fmt;
