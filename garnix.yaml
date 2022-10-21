@@ -1,4 +1,4 @@
 builds:
   exclude:
     # https://github.com/purs-nix/purs-nix/issues/32
-    - "devShell.*"
+    - "devShells.*"
