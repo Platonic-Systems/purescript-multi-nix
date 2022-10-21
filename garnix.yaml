@@ -1,6 +1,7 @@
 builds:
   include:
-    - "packages.*"
+    - "packages.x86_64-linux.*"
+    - "packages.x86_64-darwin.*"
   exclude:
     # https://github.com/purs-nix/purs-nix/issues/32
-    - "devShells.*"
+    - "devShells.*.*"
