@@ -18,6 +18,7 @@
         src.path = ./.;
         info = { inherit dependencies; };
       }).overrideAttrs (config.purs-nix-multi.inject-info {
+        inherit ps;
         src-globs = [ "bar/src/**/*.purs" ];
       });
       packages.bar-js = ps.modules.Main.bundle {

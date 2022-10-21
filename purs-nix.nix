@@ -61,6 +61,9 @@
                 toplevel-ps-command;
             };
 
+            # TODO: Supercede this by writing a buildLocalPackage package that
+            # returns a package with passthru set for everything (including
+            # 'ps').
             inject-info = lib.mkOption {
               type = lib.types.functionTo (lib.types.functionTo (lib.types.attrsOf lib.types.raw));
               description = ''
