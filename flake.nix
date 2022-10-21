@@ -12,8 +12,6 @@
       systems = [ "x86_64-linux" "x86_64-darwin" ];
       imports = [
         ./purs-nix.nix
-        ./foo
-        ./bar
       ];
       perSystem = { self', config, system, pkgs, lib, ... }: {
         purs-nix = self.inputs.purs-nix {
@@ -21,17 +19,43 @@
           overlays =
             [
               (self: super: {
-                inherit (self'.packages)
-                  foo bar;
+                foo = config.purs-nix-multi.build-local-package {
+                  name = "foo";
+                  root = ./foo;
+                  dependencies = with config.purs-nix.ps-pkgs; [
+                    matrices
+                  ];
+                  src-globs = [ "foo/src/**/*.purs" ];
+                };
+                bar = config.purs-nix-multi.build-local-package {
+                  name = "bar";
+                  root = ./bar;
+                  dependencies = with config.purs-nix.ps-pkgs; [
+                    prelude
+                    effect
+                    console
+                    foo
+                  ];
+                  src-globs = [ "bar/src/**/*.purs" ];
+                };
               })
             ];
         };
-        packages.default = pkgs.writeShellApplication {
-          name = "purescript-multi";
-          text = ''
-            set -x
-            ${lib.getExe pkgs.nodejs} ${self'.packages.bar-js}
-          '';
+        packages = {
+          inherit (config.purs-nix.ps-pkgs)
+            foo bar;
+          bar-js = self'.packages.bar.purs-nix-info-extra.ps.modules.Main.bundle {
+            esbuild = {
+              format = "cjs";
+            };
+          };
+          default = pkgs.writeShellApplication {
+            name = "purescript-multi";
+            text = ''
+              set -x
+              ${lib.getExe pkgs.nodejs} ${self'.packages.bar-js}
+            '';
+          };
         };
         devShells.default = pkgs.mkShell {
           name = "purescript-multi-nix";

@@ -19,37 +19,29 @@ A "PureScript package" is, alas, a mere copy of the .purs source files. To build
 nix build .#foo
 ```
 
+To build the bar package
+
+```sh
+nix build .#bar
+```
+
 Note that if you are on M1, you must add `--option system x86_65-darwin` because of https://github.com/purs-nix/purs-nix/issues/17.
 
 ### JavaScript bundle
 
 Unlike PureScript packages, a JavaScript bundle is probably more useful inasmuch as compilation actually happens as part of the build. The PureScript package, above, will succeed in building even if there is a syntax error in the source tree.
 
-To build the *foo* JS bundle:
-
-``` sh
-nix build .#foo-js
-```
-
-This produces the compiled JavaScript at ./result.
-
-TODO: How to evaluate this (the library function) the NodeJS repl?
-
-### Building the ./bar application
-
-Using the instructions above on how to build the ./foo package, we can likewise build the ./bar application:
-
-``` sh
-nix build .#bar
-```
-
-The above is of course not very useful, so let us build the ./bar application JS bundle:
+To build the *bar* JS bundle:
 
 ``` sh
 nix build .#bar-js
 ```
 
-Now we can run the result directly in the NodeJS evaluator!
+This produces the compiled JavaScript at ./result.
+
+### Running the ./bar application
+
+Once the JS bundle (`.#bar-js`) of the application package "bar" is produced using `nix build .#bar-js`, we can run it directly using NodeJS:
 
 ``` sh-session
 ❯ node ./result
