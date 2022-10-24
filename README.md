@@ -55,9 +55,20 @@ Alternatively: `nix run`.
 
 ## Dev shell
 
-The dev shell is a **work-in-progress**. Since purs-nix itself *does not* support a multi-package `purs-nix` command yet, we create a ghost top-level package and then produce the `purs-nix` command for it. See `devShells.default` in flake.nix as well as the purs-nix.nix it uses. Ultimately, the goal is to upstream support for multi-package dev shell to purs-nix.
+The dev shell is a **work-in-progress**. 
+
+### Multi-package command
+
+Since purs-nix itself **does not** support a multi-package `purs-nix` command yet, we create a ghost top-level package and then produce the `purs-nix` command for it. See `devShells.default` in flake.nix as well as the purs-nix.nix it uses. Ultimately, the goal is to upstream support for multi-package dev shell to purs-nix.
+
+What works:
+
+- [ ] `purs-nix compile`
+    - [x] Builds the 'src' directory of each local package, generating `./output` at top-level.
+    - [ ] Build their tests 
+- [ ] `purs-nix <other command>`
+    - [ ] `purs-nix test` (we are not dealing with tests yet!)
 
 ### IDE support
 
-Run the following to compile your sources, producing an `./output` directory:
-This directory, in turn, will be used by the PureScript language server. This is tested to work with VSCode.
+Run `purs-nix compile` to compile your sources, producing an `./output` directory. This directory, in turn, will be used by the PureScript language server. This is tested to work with VSCode.

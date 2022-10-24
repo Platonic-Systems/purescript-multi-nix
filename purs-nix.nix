@@ -72,11 +72,13 @@
               '';
               default = attrs@{ name, root, dependencies, srcs }:
                 let
+                  # Arguments to pass to purs-nix's "build" function.
                   buildAttrs = {
                     inherit name;
                     src.path = root;
                     info = { inherit dependencies; };
                   };
+                  # Arguments to pass to purs-nix's "purs" function.
                   psAttrs = {
                     inherit dependencies;
                     dir = root;
