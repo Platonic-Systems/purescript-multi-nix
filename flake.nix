@@ -59,11 +59,16 @@
         };
         devShells.default = pkgs.mkShell {
           name = "purescript-multi-nix";
-          buildInputs = [
-            config.purs-nix.purescript
-            config.purs-nix-multi.multi-command
-            pkgs.nixpkgs-fmt
-          ];
+          buildInputs =
+            let
+              ps-tools = inputs.purs-nix.inputs.ps-tools.legacyPackages.${system};
+            in
+            [
+              config.purs-nix.purescript
+              config.purs-nix-multi.multi-command
+              ps-tools.for-0_15.purescript-language-server
+              pkgs.nixpkgs-fmt
+            ];
         };
         formatter = pkgs.nixpkgs-fmt;
       };
