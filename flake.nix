@@ -22,21 +22,21 @@
                 foo = config.purs-nix-multi.build-local-package {
                   name = "foo";
                   root = ./foo;
+                  srcs = [ "foo/src" ];
                   dependencies = with config.purs-nix.ps-pkgs; [
                     matrices
                   ];
-                  src-globs = [ "foo/src/**/*.purs" ];
                 };
                 bar = config.purs-nix-multi.build-local-package {
                   name = "bar";
                   root = ./bar;
+                  srcs = [ "bar/src" ];
                   dependencies = with config.purs-nix.ps-pkgs; [
                     prelude
                     effect
                     console
                     foo
                   ];
-                  src-globs = [ "bar/src/**/*.purs" ];
                 };
               })
             ];

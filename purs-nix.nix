@@ -56,10 +56,10 @@
                   # having the developer specify them (in passthru; see further
                   # below).
                   localPackagesSrcGlobs =
-                    lib.concatMap (p: p.purs-nix-info-extra.src-globs) (lib.attrValues localPackages);
+                    lib.concatMap (p: p.purs-nix-info-extra.srcs) (lib.attrValues localPackages);
 
                   toplevel-ps-command = toplevel-ps.command {
-                    src-globs = lib.concatStringsSep " " localPackagesSrcGlobs;
+                    srcs = localPackagesSrcGlobs;
                   };
                 in
                 toplevel-ps-command;
@@ -70,7 +70,7 @@
               description = ''
                 Build a local PureScript package
               '';
-              default = attrs@{ name, root, dependencies, src-globs }:
+              default = attrs@{ name, root, dependencies, srcs }:
                 let
                   buildAttrs = {
                     inherit name;
@@ -85,7 +85,7 @@
                   pkg = config.purs-nix.build buildAttrs;
                   passthruAttrs = {
                     purs-nix-info-extra = {
-                      inherit ps src-globs;
+                      inherit ps srcs;
                     };
                   };
                 in
