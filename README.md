@@ -65,9 +65,11 @@ What works:
 
 - [ ] `purs-nix compile`
     - [x] Builds the 'src' directory of each local package, generating `./output` at top-level.
-    - [ ] Build their tests 
-- [ ] `purs-nix <other command>`
-    - [ ] `purs-nix test` (we are not dealing with tests yet!)
+- [ ] `purs-nix test`
+    - [ ] Build tests for individual packages
+    - [ ] Run those built tests (again, for individual packages)
+- [ ] `purs-nix bundle` (same as above)
+- [ ] `purs-nix run` (same as above)
 
 ### IDE support
 
