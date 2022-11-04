@@ -66,16 +66,18 @@
             };
 
             build-local-package = lib.mkOption {
-              type = lib.types.functionTo (lib.types.functionTo lib.types.package);
+              type = lib.types.functionTo (lib.types.functionTo (lib.types.functionTo lib.types.package));
               description = ''
                 Build a local PureScript package
               '';
-              default = ps-pkgs: attrs@{ name, root, dependencies, srcs }:
+              # TODO: rootStr should be auto detected during bash wrapper script run time?
+              default = ps-pkgs: root: rootStr:
                 let
                   # Arguments to pass to purs-nix's "build" function.
-                  dependenciesDrv = map (name: ps-pkgs.${name}) dependencies;
+                  meta = import "${root}/purs.nix" { inherit pkgs; };
+                  dependenciesDrv = map (name: ps-pkgs.${name}) meta.dependencies;
                   buildAttrs = {
-                    inherit name;
+                    inherit (meta) name;
                     src.path = root;
                     info = { dependencies = dependenciesDrv; };
                   };
@@ -88,7 +90,8 @@
                   pkg = config.purs-nix.build buildAttrs;
                   passthruAttrs = {
                     purs-nix-info-extra = {
-                      inherit ps srcs;
+                      inherit ps;
+                      srcs = map (p: rootStr + p) meta.srcs;
                     };
                   };
                 in

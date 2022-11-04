@@ -19,25 +19,8 @@
           overlays =
             [
               (self: super: {
-                foo = config.purs-nix-multi.build-local-package self {
-                  name = "foo";
-                  root = ./foo;
-                  srcs = [ "foo/src" ];
-                  dependencies = [
-                    "matrices"
-                  ];
-                };
-                bar = config.purs-nix-multi.build-local-package self {
-                  name = "bar";
-                  root = ./bar;
-                  srcs = [ "bar/src" ];
-                  dependencies = [
-                    "prelude"
-                    "effect"
-                    "console"
-                    "foo"
-                  ];
-                };
+                foo = config.purs-nix-multi.build-local-package self ./foo "foo/";
+                bar = config.purs-nix-multi.build-local-package self ./bar "foo/";
               })
             ];
         };
