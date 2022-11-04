@@ -71,6 +71,8 @@ What works:
 - [ ] `purs-nix bundle` (same as above)
 - [ ] `purs-nix run` (same as above)
 
+How to solve this? See https://github.com/purs-nix/purs-nix/issues/36
+
 ### IDE support
 
 Run `purs-nix compile` to compile your sources, producing an `./output` directory. This directory, in turn, will be used by the PureScript language server. This is tested to work with VSCode.
