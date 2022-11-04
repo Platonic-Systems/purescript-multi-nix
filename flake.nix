@@ -23,7 +23,7 @@
                   name = "foo";
                   root = ./foo;
                   srcs = [ "foo/src" ];
-                  dependencies = with self; [
+                  dependencies = [
                     "matrices"
                   ];
                 };
@@ -31,7 +31,7 @@
                   name = "bar";
                   root = ./bar;
                   srcs = [ "bar/src" ];
-                  dependencies = with self; [
+                  dependencies = [
                     "prelude"
                     "effect"
                     "console"
