@@ -66,22 +66,23 @@
             };
 
             build-local-package = lib.mkOption {
-              type = lib.types.functionTo lib.types.package;
+              type = lib.types.functionTo (lib.types.functionTo lib.types.package);
               description = ''
                 Build a local PureScript package
               '';
-              default = attrs@{ name, root, dependencies, srcs }:
+              default = ps-pkgs: attrs@{ name, root, dependencies, srcs }:
                 let
                   # Arguments to pass to purs-nix's "build" function.
+                  dependenciesDrv = map (name: ps-pkgs.${name}) dependencies;
                   buildAttrs = {
                     inherit name;
                     src.path = root;
-                    info = { inherit dependencies; };
+                    info = { dependencies = dependenciesDrv; };
                   };
                   # Arguments to pass to purs-nix's "purs" function.
                   psAttrs = {
-                    inherit dependencies;
                     dir = root;
+                    dependencies = dependenciesDrv;
                   };
                   ps = config.purs-nix.purs psAttrs;
                   pkg = config.purs-nix.build buildAttrs;
