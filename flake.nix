@@ -23,7 +23,7 @@
                   name = "foo";
                   root = ./foo;
                   srcs = [ "foo/src" ];
-                  dependencies = with config.purs-nix.ps-pkgs; [
+                  dependencies = with self; [
                     "matrices"
                   ];
                 };
@@ -31,7 +31,7 @@
                   name = "bar";
                   root = ./bar;
                   srcs = [ "bar/src" ];
-                  dependencies = with config.purs-nix.ps-pkgs; [
+                  dependencies = with self; [
                     "prelude"
                     "effect"
                     "console"
