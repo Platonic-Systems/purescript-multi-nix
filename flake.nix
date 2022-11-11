@@ -11,7 +11,7 @@
     flake-parts.lib.mkFlake { inherit self; } {
       systems = [ "x86_64-linux" "x86_64-darwin" ];
       imports = [
-        ./purs-nix.nix
+        ./nix/purs-nix/flake-module.nix
       ];
       perSystem = { self', config, system, pkgs, lib, ... }: {
         purs-nix = self.inputs.purs-nix {
