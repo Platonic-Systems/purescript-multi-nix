@@ -57,21 +57,13 @@ Alternatively: `nix run`.
 
 The dev shell is a **work-in-progress**. 
 
-### Multi-package command
+### Multi-package command (WIP)
 
-Since purs-nix itself **does not** support a multi-package `purs-nix` command yet, we create a ghost top-level package and then produce the `purs-nix` command for it. See `devShells.default` in flake.nix as well as the purs-nix.nix it uses. Ultimately, the goal is to upstream support for multi-package dev shell to purs-nix.
+This repo implements https://github.com/purs-nix/purs-nix/issues/36 but outside of purs-nix (see `purs-nix.nix`). It also acts as a stepping step towards actually implementing the aforementioned proposal in purs-nix itself.
 
-What works:
-
-- [ ] `purs-nix compile`
-    - [x] Builds the 'src' directory of each local package, generating `./output` at top-level.
-- [ ] `purs-nix test`
-    - [ ] Build tests for individual packages
-    - [ ] Run those built tests (again, for individual packages)
-- [ ] `purs-nix bundle` (same as above)
-- [ ] `purs-nix run` (same as above)
-
-How to solve this? See https://github.com/purs-nix/purs-nix/issues/36
+- It creates a wrapper bash script to implement the above. Run `purs-nix` in devshell, and it will do the right thing depending on your $PWD. 
+  - For example, `cd ./foo && purs-nix run` will try to run the foo package. This will, of course fail because there is no 'Main' entry point in the foo package (unless, of course, your "output" directory already compiles compiled assets for ./bar). Try `cd ./bar && purs-nix run` instead, and it will do what `nix run` does.
+- A ghost top-level ps command is also created for running `purs-nix compile` from project root. This will compile all packages. It may not make sense for non-compile commands, though.
 
 ### IDE support
 

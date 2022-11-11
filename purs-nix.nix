@@ -58,17 +58,91 @@
                   localPackagesSrcGlobs =
                     lib.concatMap (p: p.purs-nix-info-extra.srcs) (lib.attrValues localPackages);
 
+                  # Attrset of purs-nix commands indexed by relative path to package root.
+                  #
+                  # { "foo" = <ps.command for foo>; ... }
+                  localPackageCommands =
+                    let
+                      localPackagesByPath =
+                        lib.groupBy
+                          (p: p.passthru.purs-nix-info-extra.rootRelativeToProjectRoot)
+                          (lib.attrValues localPackages);
+                    in
+                    lib.mapAttrs (_: p: (builtins.head p).passthru.purs-nix-info-extra.command) localPackagesByPath;
+
                   toplevel-ps-command = toplevel-ps.command {
                     srcs = localPackagesSrcGlobs;
                     output = "output";
                   };
+
+                  allCommands = localPackageCommands // { "." = toplevel-ps-command; };
+
+                  # Wrapper script to do the top-level dance before delegating
+                  # to the actual purs-nix 'command' script.
+                  #
+                  # - Determine $PWD relative to project root
+                  # - Look up that key in `localPackageCommands` and run it.
+                  wrapper =
+                    let
+                      # Produce a BASH `case` block for the given localPackages key.
+                      caseBlockFor = path:
+                        ''
+                          ${path})
+                            set -x
+                            cd ${path}
+                            ${lib.getExe localPackages.${path}.passthru.purs-nix-info-extra.command} $*
+                            ;;
+                        '';
+                    in
+                    pkgs.writeShellScriptBin "purs-nix" ''
+                      #!${pkgs.runtimeShell}
+                      set -euo pipefail
+
+                      find_up() {
+                        ancestors=()
+                        while true; do
+                          if [[ -f $1 ]]; then
+                            echo "$PWD"
+                            exit 0
+                          fi
+                          ancestors+=("$PWD")
+                          if [[ $PWD == / ]] || [[ $PWD == // ]]; then
+                            echo "ERROR: Unable to locate the projectRootFile ($1) in any of: ''${ancestors[*]@Q}" >&2
+                            exit 1
+                          fi
+                          cd ..
+                        done
+                      }
+
+                      # TODO: make configurable
+                      tree_root=$(find_up "flake.nix")
+                      pwd_rel=$(realpath --relative-to=$tree_root .)
+
+                      echo "> purs-nix metadata gathered"
+                      echo "Project root: $tree_root"
+                      echo "PWD: `pwd`"
+                      echo "PWD, relative: $pwd_rel"
+                      cd $tree_root
+
+                      echo "Registered purs-nix commands:"
+                      echo "  ${lib.concatStringsSep "\n" (lib.mapAttrsToList (n: v: "${n} => ${lib.getExe v} ") allCommands)}"
+                      echo
+                      echo "> Delegating to the appropriate purs-nix 'command' ..."
+                      case "$pwd_rel" in 
+                        ${
+                          builtins.foldl' (acc: path: acc + caseBlockFor path)
+                            ""
+                            (lib.attrNames localPackageCommands)
+                        }
+                        *)
+                          echo "ERROR: Unable to find a purs-nix command for the current directory ($pwd_rel)" >&2
+                          exit 1
+                          ;;
+                      esac
+                      # ${lib.getExe toplevel-ps-command} $*
+                    '';
                 in
-                # TODO(wrapper): This should instead be a meta script.
-                  # If at ./., do as we do.
-                  #   - Find project root to know this.
-                  # If at ./subPkg (where ./subPkg/purs.nix exists), then
-                  #   - delegate to subPkg.passthru.ps.command { }
-                toplevel-ps-command;
+                wrapper;
             };
 
             build-local-package = lib.mkOption {
@@ -100,7 +174,7 @@
                         parent' = builtins.toString self;
                         path' = builtins.toString path;
                       in
-                      if parent' == path' then "" else lib.removePrefix (parent' + "/") path';
+                      if parent' == path' then "." else lib.removePrefix (parent' + "/") path';
                     # Given a relative path from root (`path`), construct the
                     # same but as being relative to `baseRel` (also relative to
                     # root) instead.
@@ -108,7 +182,7 @@
                       let
                         # The number of directories to go back.
                         n =
-                          if baseRel == ""
+                          if baseRel == "."
                           then 0
                           else lib.length (lib.splitString "/" baseRel);
                       in
@@ -119,6 +193,10 @@
                   passthruAttrs = {
                     purs-nix-info-extra = {
                       inherit ps rootRelativeToProjectRoot outputDir;
+                      # NOTE: This purs-nix command is valid inasmuch as it
+                      # launched from PWD being the base directory of this
+                      # package's purs.nix file.
+                      command = ps.command { output = outputDir; };
                       srcs = map (p: rootRelativeToProjectRoot + "/" + p) meta.srcs;
                     };
                   };
@@ -133,3 +211,11 @@
     };
   };
 }
+
+
+
+
+
+
+
+
