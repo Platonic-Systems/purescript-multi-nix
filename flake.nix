@@ -18,10 +18,14 @@
           inherit system;
           overlays =
             [
-              (self: super: {
-                foo = config.purs-nix-multi.build-local-package self ./foo;
-                bar = config.purs-nix-multi.build-local-package self ./bar;
-              })
+              (self: super:
+                let
+                  build = config.purs-nix-multi.build-local-package;
+                in
+                {
+                  foo = build self ./foo;
+                  bar = build self ./bar;
+                })
             ];
         };
         packages = {
