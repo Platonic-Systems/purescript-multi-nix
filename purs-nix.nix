@@ -60,6 +60,7 @@
 
                   toplevel-ps-command = toplevel-ps.command {
                     srcs = localPackagesSrcGlobs;
+                    output = "output";
                   };
                 in
                 toplevel-ps-command;
