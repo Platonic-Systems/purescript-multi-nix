@@ -67,12 +67,11 @@
             };
 
             build-local-package = lib.mkOption {
-              type = lib.types.functionTo (lib.types.functionTo (lib.types.functionTo lib.types.package));
+              type = lib.types.functionTo (lib.types.functionTo lib.types.package);
               description = ''
                 Build a local PureScript package
               '';
-              # TODO: rootStr should be auto detected during bash wrapper script run time?
-              default = ps-pkgs: root: rootStr:
+              default = ps-pkgs: root:
                 let
                   # Arguments to pass to purs-nix's "build" function.
                   meta = import "${root}/purs.nix" { inherit pkgs; };
@@ -89,10 +88,13 @@
                   };
                   ps = config.purs-nix.purs psAttrs;
                   pkg = config.purs-nix.build buildAttrs;
+                  rootRelativeToProjectRoot =
+                    # TODO: We want this to fail if prefix is not found.
+                    lib.removePrefix (builtins.toString self + "/") (builtins.toString root);
                   passthruAttrs = {
                     purs-nix-info-extra = {
                       inherit ps;
-                      srcs = map (p: rootStr + p) meta.srcs;
+                      srcs = map (p: rootRelativeToProjectRoot + "/" + p) meta.srcs;
                     };
                   };
                 in

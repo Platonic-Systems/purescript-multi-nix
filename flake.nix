@@ -19,8 +19,8 @@
           overlays =
             [
               (self: super: {
-                foo = config.purs-nix-multi.build-local-package self ./foo "foo/";
-                bar = config.purs-nix-multi.build-local-package self ./bar "foo/";
+                foo = config.purs-nix-multi.build-local-package self ./foo;
+                bar = config.purs-nix-multi.build-local-package self ./bar;
               })
             ];
         };
