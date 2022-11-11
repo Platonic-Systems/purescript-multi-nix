@@ -63,6 +63,11 @@
                     output = "output";
                   };
                 in
+                # TODO(wrapper): This should instead be a meta script.
+                  # If at ./., do as we do.
+                  #   - Find project root to know this.
+                  # If at ./subPkg (where ./subPkg/purs.nix exists), then
+                  #   - delegate to subPkg.passthru.ps.command { }
                 toplevel-ps-command;
             };
 
@@ -88,12 +93,32 @@
                   };
                   ps = config.purs-nix.purs psAttrs;
                   pkg = config.purs-nix.build buildAttrs;
-                  rootRelativeToProjectRoot =
-                    # TODO: We want this to fail if prefix is not found.
-                    lib.removePrefix (builtins.toString self + "/") (builtins.toString root);
+                  fsLib = {
+                    # Make the given path (`path`) relative to the `parent` path.
+                    mkRelative = parent: path:
+                      let
+                        parent' = builtins.toString self;
+                        path' = builtins.toString path;
+                      in
+                      if parent' == path' then "" else lib.removePrefix (parent' + "/") path';
+                    # Given a relative path from root (`path`), construct the
+                    # same but as being relative to `baseRel` (also relative to
+                    # root) instead.
+                    changeRelativityTo = path: baseRel:
+                      let
+                        # The number of directories to go back.
+                        n =
+                          if baseRel == ""
+                          then 0
+                          else lib.length (lib.splitString "/" baseRel);
+                      in
+                      builtins.foldl' (a: _: "../" + a) "" (lib.range 1 n) + path;
+                  };
+                  rootRelativeToProjectRoot = fsLib.mkRelative self root;
+                  outputDir = fsLib.changeRelativityTo "output" rootRelativeToProjectRoot;
                   passthruAttrs = {
                     purs-nix-info-extra = {
-                      inherit ps;
+                      inherit ps rootRelativeToProjectRoot outputDir;
                       srcs = map (p: rootRelativeToProjectRoot + "/" + p) meta.srcs;
                     };
                   };
