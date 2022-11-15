@@ -6,26 +6,26 @@ A demo of a multi-package PureScript project (monorepo) nixified using [purs-nix
 
 Like [haskell-multi-nix](https://github.com/srid/haskell-multi-nix), this repository has two packages:
 
-- `./foo` -- a PureScript library.
-- `./bar` -- a PureScript executable, that depends on ./foo
+- `./foo`: a PureScript library.
+- `./bar`: a PureScript executable, that depends on `./foo`
 
 ## Building packages
 
 ### PureScript package 
 
-A "PureScript package" is, alas, a mere copy of the .purs source files. To build the *foo* PureScript package:
+A "PureScript package" is, alas, a mere copy of the `.purs` source files. To build the *foo* PureScript package:
 
-``` sh
-nix build .#foo
+``` sh-session
+❯ nix build .#foo
 ```
 
-To build the bar package
+To build the *bar* package:
 
-```sh
-nix build .#bar
+``` sh-session
+❯ nix build .#bar
 ```
 
-Note that if you are on M1, you must add `--option system x86_65-darwin` because of https://github.com/purs-nix/purs-nix/issues/17.
+NOTE: if you are on a Apple silicon processor (such as M1, M2, etc.), you will need to add `--option system x86_64-darwin` and run binaries through [Rosetta 2](https://en.wikipedia.org/wiki/Rosetta_2_(software))’s x86 translator until native ARM-compatible binaries are built upstream (see: https://github.com/purs-nix/purs-nix/issues/17).
 
 ### JavaScript bundle
 
@@ -33,15 +33,14 @@ Unlike PureScript packages, a JavaScript bundle is probably more useful inasmuch
 
 To build the *bar* JS bundle:
 
-``` sh
-nix build .#bar-js
+``` sh-session
+❯ nix build .#bar-js
 ```
 
 This produces the compiled JavaScript at ./result.
 
 ### Running the ./bar application
-
-Once the JS bundle (`.#bar-js`) of the application package "bar" is produced using `nix build .#bar-js`, we can run it directly using NodeJS:
+Once the JS bundle (`.#bar-js`) of the application package *bar* is produced using `nix build .#bar-js`, we can run it directly using NodeJS:
 
 ``` sh-session
 ❯ node ./result
@@ -62,7 +61,7 @@ The dev shell is a **work-in-progress**.
 This repo implements https://github.com/purs-nix/purs-nix/issues/36 but outside of purs-nix (see `purs-nix.nix`). It also acts as a stepping step towards actually implementing the aforementioned proposal in purs-nix itself.
 
 - It creates a wrapper bash script to implement the above. Run `purs-nix` in devshell, and it will do the right thing depending on your $PWD. 
-  - For example, `cd ./foo && purs-nix run` will try to run the foo package. This will, of course fail because there is no 'Main' entry point in the foo package (unless, of course, your "output" directory already compiles compiled assets for ./bar). Try `cd ./bar && purs-nix run` instead, and it will do what `nix run` does.
+  - For example, `cd ./foo && purs-nix run` will try to run the foo package. This will, of course fail because there is no `Main` entry point in the foo package (unless, of course, your "output" directory already compiles compiled assets for ./bar). Try `cd ./bar && purs-nix run` instead, and it will do what `nix run` does.
 - A ghost top-level ps command is also created for running `purs-nix compile` from project root. This will compile all packages. It may not make sense for non-compile commands, though.
 
 ### IDE support
