@@ -1,14 +1,23 @@
 { self, pkgs, lib, purs-nix }:
 
+let
+  isRemotePackage = p:
+    lib.hasAttr "repo" p.purs-nix-info
+    || lib.hasAttr "flake" p.purs-nix-info;
+
+  allDependenciesOf = ps:
+    # Get the dependencies the given list of packages depends on, excluding
+    # those packages themselves.
+    lib.subtractLists ps
+      (lib.concatMap (p: p.purs-nix-info.dependencies) ps);
+
+in
 {
   # A purs-nix command for multi-package project.
   #
   # Specifically, running `purs-nix compile` is expected to compile
   multi-command =
     let
-      isRemotePackage = p:
-        lib.hasAttr "repo" p.purs-nix-info
-        || lib.hasAttr "flake" p.purs-nix-info;
 
       localPackages =
         # Local packages in the package set.
@@ -16,12 +25,6 @@
         # These packages exist locally in this project, and not being pulled
         # from anywhere.
         lib.filterAttrs (_: p: !isRemotePackage p) purs-nix.ps-pkgs;
-
-      allDependenciesOf = ps:
-        # Get the dependencies the given list of packages depends on, excluding
-        # those packages themselves.
-        lib.subtractLists ps
-          (lib.concatMap (p: p.purs-nix-info.dependencies) ps);
 
       # HACK: purs-nix has no multi-pacakge support; so we string
       # together 'dependencies' of local packages to create a top-level
@@ -121,7 +124,6 @@
               exit 1
               ;;
           esac
-          # ${lib.getExe toplevel-ps-command} $*
         '';
     in
     wrapper;
@@ -132,19 +134,28 @@
     let
       # Arguments to pass to purs-nix's "build" function.
       meta = import "${root}/purs.nix" { inherit pkgs; };
-      dependenciesDrv = map (name: ps-pkgs.${name}) meta.dependencies;
-      buildAttrs = {
+      dependencies = map (name: ps-pkgs.${name}) meta.dependencies;
+      nonLocalDependencies = lib.filter (p: isRemotePackage p) dependencies;
+      localDependencies = lib.filter (p: !isRemotePackage p) dependencies;
+      localDependenciesSrcGlobs =
+        lib.concatMap
+          (p: map changeRelativityToHere p.purs-nix-info-extra.srcs)
+          localDependencies;
+
+      psLocal = purs-nix.purs {
+        dir = root;
+        # Exclude local dependencies (they are specified in 'srcs' latter)
+        dependencies = nonLocalDependencies ++ allDependenciesOf localDependencies;
+      };
+      ps = purs-nix.purs {
+        dir = root;
+        inherit dependencies;
+      };
+      pkg = purs-nix.build {
         inherit (meta) name;
         src.path = root;
-        info = { dependencies = dependenciesDrv; };
+        info = { inherit dependencies; };
       };
-      # Arguments to pass to purs-nix's "purs" function.
-      psAttrs = {
-        dir = root;
-        dependencies = dependenciesDrv;
-      };
-      ps = purs-nix.purs psAttrs;
-      pkg = purs-nix.build buildAttrs;
       fsLib = {
         # Make the given path (`path`) relative to the `parent` path.
         mkRelative = parent: path:
@@ -167,16 +178,25 @@
           builtins.foldl' (a: _: "../" + a) "" (lib.range 1 n) + path;
       };
       rootRelativeToProjectRoot = fsLib.mkRelative self root;
-      outputDir = fsLib.changeRelativityTo "output" rootRelativeToProjectRoot;
+      changeRelativityToHere = path: fsLib.changeRelativityTo path rootRelativeToProjectRoot;
+      outputDir = changeRelativityToHere "output";
       passthruAttrs = {
-        purs-nix-info-extra = {
-          inherit ps rootRelativeToProjectRoot outputDir;
-          # NOTE: This purs-nix command is valid inasmuch as it
-          # launched from PWD being the base directory of this
-          # package's purs.nix file.
-          command = ps.command { output = outputDir; };
-          srcs = map (p: rootRelativeToProjectRoot + "/" + p) meta.srcs;
-        };
+        purs-nix-info-extra =
+          let
+            mySrcs = map (p: rootRelativeToProjectRoot + "/" + p) meta.srcs;
+          in
+          {
+            inherit ps rootRelativeToProjectRoot outputDir;
+            # NOTE: This purs-nix command is valid inasmuch as it
+            # launched from PWD being the base directory of this
+            # package's purs.nix file.
+            command = psLocal.command {
+              output = outputDir;
+              # See also psLocal's dependencies pruning above.
+              srcs = localDependenciesSrcGlobs ++ map changeRelativityToHere mySrcs;
+            };
+            srcs = mySrcs;
+          };
       };
     in
     pkg.overrideAttrs (oa: {
