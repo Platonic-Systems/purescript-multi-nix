@@ -25,7 +25,7 @@ To build the bar package
 ❯ nix build .#bar
 ```
 
-Note that if you are on M1, you must add `--option system x86_65-darwin` because of https://github.com/purs-nix/purs-nix/issues/17.
+NOTE: if you are on Apple’s M-series processors (such as M1, M2, etc.), you will need add `--option system x86_64-darwin` and run binaries through [Rosetta 2](https://en.wikipedia.org/wiki/Rosetta_2_(software))’s x86 translator until native ARM-compatible binaries are built upstream (see: https://github.com/purs-nix/purs-nix/issues/17).
 
 ### JavaScript bundle
 
