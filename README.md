@@ -67,3 +67,13 @@ This repo implements https://github.com/purs-nix/purs-nix/issues/36 but outside 
 ### IDE support
 
 Run `purs-nix compile` to compile your sources, producing an `./output` directory. This directory, in turn, will be used by the PureScript language server. This is tested to work with VSCode.
+
+### direnv
+
+To automatically load and unload the Nix shell environment, when entering the project, an `.envrc` can be used to invoke the Nix shell (as well as other things you may want in your development environement; see [direnv’s docs](https://direnv.net/)). A minimal example is provided:
+
+``` sh-session
+❯ cp .envrc.example .envrc
+❯ $EDITOR .envrc
+❯ direnv allow
+```
