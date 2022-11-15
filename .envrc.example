@@ -1,0 +1,6 @@
+# For automatic Nix shell loading & unloading
+use flake
+
+# For automatic Nix shell for Apple’s M-series processors
+# (requires Rosetta 2 translation from x86)
+#use flake . --option system x86_64-darwin
