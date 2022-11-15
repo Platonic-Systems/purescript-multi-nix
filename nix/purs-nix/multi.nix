@@ -71,11 +71,13 @@ in
         let
           # Produce a BASH `case` block for the given localPackages key.
           caseBlockFor = path:
+            let command = allCommands.${path};
+            in
             ''
               ${path})
                 set -x
                 cd ${path}
-                ${lib.getExe localPackages.${path}.passthru.purs-nix-info-extra.command} $*
+                ${lib.getExe command} $*
                 ;;
             '';
         in
@@ -117,7 +119,7 @@ in
             ${
               builtins.foldl' (acc: path: acc + caseBlockFor path)
                 ""
-                (lib.attrNames localPackageCommands)
+                (lib.attrNames allCommands)
             }
             *)
               echo "ERROR: Unable to find a purs-nix command for the current directory ($pwd_rel)" >&2
