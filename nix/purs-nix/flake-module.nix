@@ -14,7 +14,7 @@
         '';
         type = lib.types.attrsOf lib.types.unspecified;
         default = import ./multi.nix {
-          inherit self pkgs lib;
+          inherit self pkgs lib inputs';
           inherit (config) purs-nix;
         };
       };

@@ -5,6 +5,8 @@
 
     purs-nix.url = "github:purs-nix/purs-nix";
     purs-nix.inputs.nixpkgs.follows = "nixpkgs";
+
+    npmlock2nix = { url = "github:nix-community/npmlock2nix"; flake = false; };
   };
 
   outputs = inputs@{ self, flake-parts, nixpkgs, ... }:
@@ -25,13 +27,19 @@
                 {
                   foo = build self ./foo;
                   bar = build self ./bar;
+                  baz = build self ./baz;
                 })
             ];
         };
         packages = {
           inherit (config.purs-nix.ps-pkgs)
-            foo bar;
+            foo bar baz;
           bar-js = self'.packages.bar.purs-nix-info-extra.ps.modules.Main.bundle {
+            esbuild = {
+              format = "cjs";
+            };
+          };
+          baz-js = self'.packages.baz.purs-nix-info-extra.ps.modules.Main.bundle {
             esbuild = {
               format = "cjs";
             };
@@ -47,6 +55,17 @@
                 ${lib.getExe pkgs.nodejs} ${self'.packages.bar-js}
               '';
             };
+
+          };
+          baz = {
+            type = "app";
+            program = pkgs.writeShellApplication {
+              name = "purescript-multi-baz";
+              text = ''
+                set -x
+                ${lib.getExe pkgs.nodejs} ${self'.packages.baz-js}
+              '';
+            };
           };
         };
         devShells.default = pkgs.mkShell {
@@ -59,6 +78,7 @@
               config.purs-nix.purescript
               config.purs-nix-multi.multi-command
               ps-tools.for-0_15.purescript-language-server
+              ps-tools.for-0_15.purs-tidy
               pkgs.nixpkgs-fmt
             ];
         };

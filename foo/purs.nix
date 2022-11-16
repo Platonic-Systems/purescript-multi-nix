@@ -1,4 +1,4 @@
-{ pkgs, npmlock2nix ? null, ... }:
+{ pkgs, ... }:
 
 {
   name = "foo";

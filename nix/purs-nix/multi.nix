@@ -1,4 +1,4 @@
-{ self, pkgs, lib, purs-nix }:
+{ self, pkgs, lib, purs-nix, inputs' }:
 
 let
   isRemotePackage = p:
@@ -135,14 +135,15 @@ in
   build-local-package = ps-pkgs: root:
     let
       # Arguments to pass to purs-nix's "build" function.
-      meta = import "${root}/purs.nix" { inherit pkgs; };
-      dependencies = map (name: ps-pkgs.${name}) meta.dependencies;
+      meta = import "${root}/purs.nix" { inherit pkgs inputs'; };
+      dependencies = map (name: ps-pkgs.${ name}) meta.dependencies;
       nonLocalDependencies = lib.filter (p: isRemotePackage p) dependencies;
       localDependencies = lib.filter (p: !isRemotePackage p) dependencies;
       localDependenciesSrcGlobs =
         lib.concatMap
           (p: map changeRelativityToHere p.purs-nix-info-extra.srcs)
           localDependencies;
+      #foreign = map (name: ps-pkgs.${name}) meta.foreign;
 
       psLocal = purs-nix.purs {
         dir = root;
@@ -151,6 +152,7 @@ in
       };
       ps = purs-nix.purs {
         dir = root;
+        foreign = if meta?foreign then meta.foreign else null;
         inherit dependencies;
       };
       pkg = purs-nix.build {
