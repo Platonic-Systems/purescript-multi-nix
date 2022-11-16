@@ -112,7 +112,7 @@ in
           cd $tree_root
 
           echo "Registered purs-nix commands:"
-          echo "  ${lib.concatStringsSep "\n" (lib.mapAttrsToList (n: v: "${n} => ${lib.getExe v} ") allCommands)}"
+          echo -e "\t${lib.concatStringsSep "\n\t" (lib.mapAttrsToList (n: v: "${n} => ${lib.getExe v} ") allCommands)}"
           echo
           echo "> Delegating to the appropriate purs-nix 'command' ..."
           case "$pwd_rel" in 
