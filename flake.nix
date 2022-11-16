@@ -36,12 +36,17 @@
               format = "cjs";
             };
           };
-          default = pkgs.writeShellApplication {
-            name = "purescript-multi";
-            text = ''
-              set -x
-              ${lib.getExe pkgs.nodejs} ${self'.packages.bar-js}
-            '';
+        };
+        apps = {
+          bar = {
+            type = "app";
+            program = pkgs.writeShellApplication {
+              name = "purescript-multi-bar";
+              text = ''
+                set -x
+                ${lib.getExe pkgs.nodejs} ${self'.packages.bar-js}
+              '';
+            };
           };
         };
         devShells.default = pkgs.mkShell {

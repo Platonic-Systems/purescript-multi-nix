@@ -7,7 +7,7 @@ A demo of a multi-package PureScript project (monorepo) nixified using [purs-nix
 Like [haskell-multi-nix](https://github.com/srid/haskell-multi-nix), this repository has two packages:
 
 - `./foo`: a PureScript library.
-- `./bar`: a PureScript executable, that depends on `./foo`
+- `./bar`: a PureScript executable, depends on `./foo`
 
 ## Building packages
 
@@ -49,7 +49,7 @@ Nix, Nix
 Nix, Nix
 ```
 
-Alternatively: `nix run`.
+Alternatively: `nix run .#bar`.
 
 
 ## Dev shell
