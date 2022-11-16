@@ -1,8 +1,5 @@
-{ pkgs, inputs', ... }:
+{ pkgs, npmlock2nix, ... }:
 
-let
-  npmlock2nix = import inputs'npmlock2nix { inherit pkgs; };
-in
 {
   name = "baz";
   srcs = [ "src" ];
