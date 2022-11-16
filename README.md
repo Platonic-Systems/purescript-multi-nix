@@ -64,6 +64,12 @@ This repo implements https://github.com/purs-nix/purs-nix/issues/36 but outside 
   - For example, `cd ./foo && purs-nix run` will try to run the foo package. This will, of course fail because there is no `Main` entry point in the foo package (unless, of course, your "output" directory already compiles compiled assets for ./bar). Try `cd ./bar && purs-nix run` instead, and it will do what `nix run` does.
 - A ghost top-level ps command is also created for running `purs-nix compile` from project root. This will compile all packages. It may not make sense for non-compile commands, though.
 
+
+#### Pitfals
+
+- Non-relevant "output" directory assets can be used. For e.g., running `cd ./foo && purs-nix run` will actually succeed by running bar's entrypoint if bar had already been compiled. 
+  - When purs-nix implements this properly, its "run" and "test" commands should probably ensure separation somehow.
+
 ### IDE support
 
 Run `purs-nix compile` to compile your sources, producing an `./output` directory. This directory, in turn, will be used by the PureScript language server. This is tested to work with VSCode.
