@@ -27,19 +27,19 @@
                 {
                   foo = build self ./foo;
                   bar = build self ./bar;
-                  baz = build self ./baz;
+                  zalgo = build self ./zalgo;
                 })
             ];
         };
         packages = {
           inherit (config.purs-nix.ps-pkgs)
-            foo bar baz;
+            foo bar zalgo;
           bar-js = self'.packages.bar.purs-nix-info-extra.ps.modules.Main.bundle {
             esbuild = {
               format = "cjs";
             };
           };
-          baz-js = self'.packages.baz.purs-nix-info-extra.ps.modules.Main.bundle {
+          zalgo-js = self'.packages.zalgo.purs-nix-info-extra.ps.modules.Main.bundle {
             esbuild = {
               format = "cjs";
             };
@@ -57,13 +57,13 @@
             };
 
           };
-          baz = {
+          zalgo = {
             type = "app";
             program = pkgs.writeShellApplication {
-              name = "purescript-multi-baz";
+              name = "purescript-multi-zalgo";
               text = ''
                 set -x
-                ${lib.getExe pkgs.nodejs} ${self'.packages.baz-js}
+                ${lib.getExe pkgs.nodejs} ${self'.packages.zalgo-js}
               '';
             };
           };

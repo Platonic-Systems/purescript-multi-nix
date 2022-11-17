@@ -8,7 +8,7 @@ Like [haskell-multi-nix](https://github.com/srid/haskell-multi-nix), this reposi
 
 - `./foo`: a PureScript library.
 - `./bar`: a PureScript executable, depends on `./foo`
-- `./baz`: a PureScript library, depends on `./foo` and [`zalgo-js`](https://github.com/casieber/zalgo-js) from npm
+- `./zalgo`: a PureScript library, depends on `./foo` and [`zalgo-js`](https://github.com/casieber/zalgo-js) from npm
 
 ## Building packages
 
@@ -52,13 +52,15 @@ Nix, Nix
 
 Alternatively: `nix run .#bar`.
 
-### Running th ./baz application
-The *baz* package imports a foreign library from npm. Like the *bar* package, this application can be produced and ran with Nix.
+### Running th ./zalgo application
+The *zalgo* package imports a foreign library from npm. Like the *bar* package, this application can be produced and ran with Nix.
 
 
 ``` sh-session
-❯ nix run .#baz
-TODO: copy seeded zalogized output here
+❯ nix run .#zalgo
+N̳ĩẋ,̦ ̲N͌i͖x̤
+N̥i̒x̑,͗ ͈N̎i͔x͎
+N̹i͐x̡,͉ ͬṆi͂x̖
 ```
 
 ## Dev shell

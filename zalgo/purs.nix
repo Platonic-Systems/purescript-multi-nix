@@ -1,7 +1,7 @@
 { pkgs, npmlock2nix, ... }:
 
 {
-  name = "baz";
+  name = "zalgo";
   srcs = [ "src" ];
   dependencies = [
     "console"
