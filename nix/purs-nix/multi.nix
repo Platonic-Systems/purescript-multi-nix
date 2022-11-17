@@ -146,7 +146,7 @@ in
         lib.concatMap
           (p: map changeRelativityToHere p.purs-nix-info-extra.srcs)
           localDependencies;
-      #foreign = map (name: ps-pkgs.${name}) meta.foreign;
+      foreign = meta.foreign or null;
 
       psLocal = purs-nix.purs {
         dir = root;
@@ -155,8 +155,7 @@ in
       };
       ps = purs-nix.purs {
         dir = root;
-        foreign = if meta?foreign then meta.foreign else null;
-        inherit dependencies;
+        inherit dependencies foreign;
       };
       pkg = purs-nix.build {
         inherit (meta) name;
