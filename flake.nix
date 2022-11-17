@@ -46,29 +46,23 @@
             };
           };
         };
-        apps = {
-          bar = {
-            type = "app";
-            program = pkgs.writeShellApplication {
-              name = "purescript-multi-bar";
-              text = ''
-                set -x
-                ${lib.getExe pkgs.nodejs} ${self'.packages.bar-js}
-              '';
+        apps =
+          let
+            nodejsApp = name: script: {
+              type = "app";
+              program = pkgs.writeShellApplication {
+                inherit name;
+                text = ''
+                  set -x
+                  ${lib.getExe pkgs.nodejs} ${script}
+                '';
+              };
             };
-
+          in
+          {
+            bar = nodejsApp "purescript-multi-bar" self'.packages.bar-js;
+            zalgo = nodejsApp "purescript-multi-zalgo" self'.packages.zalgo-js;
           };
-          zalgo = {
-            type = "app";
-            program = pkgs.writeShellApplication {
-              name = "purescript-multi-zalgo";
-              text = ''
-                set -x
-                ${lib.getExe pkgs.nodejs} ${self'.packages.zalgo-js}
-              '';
-            };
-          };
-        };
         devShells.default = pkgs.mkShell {
           name = "purescript-multi-nix";
           buildInputs =
