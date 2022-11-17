@@ -60,8 +60,8 @@
             };
           in
           {
-            bar = nodejsApp "purescript-multi-bar" self'.packages.bar-js;
-            zalgo = nodejsApp "purescript-multi-zalgo" self'.packages.zalgo-js;
+            bar = nodejsApp "bar" self'.packages.bar-js;
+            zalgo = nodejsApp "zalgo" self'.packages.zalgo-js;
           };
         devShells.default = pkgs.mkShell {
           name = "purescript-multi-nix";
