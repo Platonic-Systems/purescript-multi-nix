@@ -6,7 +6,8 @@
     purs-nix.url = "github:purs-nix/purs-nix";
     purs-nix.inputs.nixpkgs.follows = "nixpkgs";
 
-    npmlock2nix = { url = "github:nix-community/npmlock2nix"; flake = false; };
+    npmlock2nix.url = "github:nix-community/npmlock2nix";
+    npmlock2nix.flake = false;
   };
 
   outputs = inputs@{ self, flake-parts, nixpkgs, ... }:
