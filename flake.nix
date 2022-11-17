@@ -28,19 +28,19 @@
                 {
                   foo = build self ./foo;
                   bar = build self ./bar;
-                  zalgo = build self ./zalgo;
+                  qux = build self ./qux;
                 })
             ];
         };
         packages = {
           inherit (config.purs-nix.ps-pkgs)
-            foo bar zalgo;
+            foo bar qux;
           bar-js = self'.packages.bar.purs-nix-info-extra.ps.modules.Main.bundle {
             esbuild = {
               format = "cjs";
             };
           };
-          zalgo-js = self'.packages.zalgo.purs-nix-info-extra.ps.modules.Main.bundle {
+          qux-js = self'.packages.qux.purs-nix-info-extra.ps.modules.Main.bundle {
             esbuild = {
               format = "cjs";
             };
@@ -61,7 +61,7 @@
           in
           {
             bar = nodejsApp "bar" self'.packages.bar-js;
-            zalgo = nodejsApp "zalgo" self'.packages.zalgo-js;
+            qux = nodejsApp "qux" self'.packages.qux-js;
           };
         devShells.default = pkgs.mkShell {
           name = "purescript-multi-nix";
