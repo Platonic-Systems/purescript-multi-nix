@@ -149,6 +149,7 @@ in
       foreign = meta.foreign or null;
 
       psLocal = purs-nix.purs {
+        inherit foreign;
         dir = root;
         # Exclude local dependencies (they are specified in 'srcs' latter)
         dependencies = nonLocalDependencies ++ allDependenciesOf localDependencies;
