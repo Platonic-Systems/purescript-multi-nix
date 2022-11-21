@@ -161,6 +161,7 @@ in
       });
       buildInfo = lib.filterAttrs (_: v: v != null) {
         inherit dependencies;
+        foreign = meta.foreign or null;
       };
       pkg = purs-nix.build {
         inherit (meta) name;
