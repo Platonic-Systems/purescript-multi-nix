@@ -159,10 +159,13 @@ in
         # Exclude local dependencies (they are specified in 'srcs' latter)
         dependencies = nonLocalDependencies ++ allDependenciesOf localDependencies;
       });
+      buildInfo = lib.filterAttrs (_: v: v != null) {
+        inherit dependencies;
+      };
       pkg = purs-nix.build {
         inherit (meta) name;
         src.path = root;
-        info = { inherit dependencies; };
+        info = buildInfo;
       };
       fsLib = {
         # Make the given path (`path`) relative to the `parent` path.
