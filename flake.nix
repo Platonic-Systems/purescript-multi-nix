@@ -5,6 +5,9 @@
 
     purs-nix.url = "github:purs-nix/purs-nix";
     purs-nix.inputs.nixpkgs.follows = "nixpkgs";
+
+    npmlock2nix.url = "github:nix-community/npmlock2nix";
+    npmlock2nix.flake = false;
   };
 
   outputs = inputs@{ self, flake-parts, nixpkgs, ... }:
@@ -25,25 +28,41 @@
                 {
                   foo = build self ./foo;
                   bar = build self ./bar;
+                  qux = build self ./qux;
                 })
             ];
         };
         packages = {
           inherit (config.purs-nix.ps-pkgs)
-            foo bar;
+            foo bar qux;
           bar-js = self'.packages.bar.purs-nix-info-extra.ps.modules.Main.bundle {
             esbuild = {
               format = "cjs";
             };
           };
-          default = pkgs.writeShellApplication {
-            name = "purescript-multi";
-            text = ''
-              set -x
-              ${lib.getExe pkgs.nodejs} ${self'.packages.bar-js}
-            '';
+          qux-js = self'.packages.qux.purs-nix-info-extra.ps.modules.Main.bundle {
+            esbuild = {
+              format = "cjs";
+            };
           };
         };
+        apps =
+          let
+            nodejsApp = name: script: {
+              type = "app";
+              program = pkgs.writeShellApplication {
+                inherit name;
+                text = ''
+                  set -x
+                  ${lib.getExe pkgs.nodejs} ${script}
+                '';
+              };
+            };
+          in
+          {
+            bar = nodejsApp "bar" self'.packages.bar-js;
+            qux = nodejsApp "qux" self'.packages.qux-js;
+          };
         devShells.default = pkgs.mkShell {
           name = "purescript-multi-nix";
           buildInputs =
@@ -54,6 +73,7 @@
               config.purs-nix.purescript
               config.purs-nix-multi.multi-command
               ps-tools.for-0_15.purescript-language-server
+              ps-tools.for-0_15.purs-tidy
               pkgs.nixpkgs-fmt
             ];
         };

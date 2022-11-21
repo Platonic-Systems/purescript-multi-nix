@@ -1,4 +1,4 @@
-{ self, pkgs, lib, purs-nix }:
+{ self, pkgs, lib, purs-nix, inputs }:
 
 let
   isRemotePackage = p:
@@ -11,6 +11,7 @@ let
     lib.subtractLists ps
       (lib.concatMap (p: p.purs-nix-info.dependencies) ps);
 
+  npmlock2nix = import inputs.npmlock2nix { inherit pkgs; };
 in
 {
   # A purs-nix command for multi-package project.
@@ -135,23 +136,27 @@ in
   build-local-package = ps-pkgs: root:
     let
       # Arguments to pass to purs-nix's "build" function.
-      meta = import "${root}/purs.nix" { inherit pkgs; };
-      dependencies = map (name: ps-pkgs.${name}) meta.dependencies;
+      meta = import "${root}/purs.nix" {
+        inherit pkgs npmlock2nix;
+      };
+      dependencies = map (name: ps-pkgs.${ name}) meta.dependencies;
       nonLocalDependencies = lib.filter (p: isRemotePackage p) dependencies;
       localDependencies = lib.filter (p: !isRemotePackage p) dependencies;
       localDependenciesSrcGlobs =
         lib.concatMap
           (p: map changeRelativityToHere p.purs-nix-info-extra.srcs)
           localDependencies;
+      foreign = meta.foreign or null;
 
       psLocal = purs-nix.purs {
+        inherit foreign;
         dir = root;
         # Exclude local dependencies (they are specified in 'srcs' latter)
         dependencies = nonLocalDependencies ++ allDependenciesOf localDependencies;
       };
       ps = purs-nix.purs {
         dir = root;
-        inherit dependencies;
+        inherit dependencies foreign;
       };
       pkg = purs-nix.build {
         inherit (meta) name;

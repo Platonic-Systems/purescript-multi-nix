@@ -2,6 +2,7 @@
 .envrc
 result
 /output
+node_modules
 
 .psci_modules
 .purs-repl
