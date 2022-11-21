@@ -151,6 +151,8 @@ in
         inherit dependencies;
         dir = root;
         foreign = meta.foreign or null;
+        test-module = meta.test-module or null;
+        test-dependencies = meta.test-dependencies or null;
       };
       ps = purs-nix.purs psArgs;
       psLocal = purs-nix.purs (psArgs // {
