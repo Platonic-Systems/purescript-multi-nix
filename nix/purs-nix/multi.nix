@@ -148,16 +148,15 @@ in
           localDependencies;
       foreign = meta.foreign or null;
 
-      psLocal = purs-nix.purs {
-        inherit foreign;
-        dir = root;
-        # Exclude local dependencies (they are specified in 'srcs' latter)
-        dependencies = nonLocalDependencies ++ allDependenciesOf localDependencies;
-      };
-      ps = purs-nix.purs {
+      psArgs = {
         dir = root;
         inherit dependencies foreign;
       };
+      ps = purs-nix.purs psArgs;
+      psLocal = purs-nix.purs (psArgs // {
+        # Exclude local dependencies (they are specified in 'srcs' latter)
+        dependencies = nonLocalDependencies ++ allDependenciesOf localDependencies;
+      });
       pkg = purs-nix.build {
         inherit (meta) name;
         src.path = root;
