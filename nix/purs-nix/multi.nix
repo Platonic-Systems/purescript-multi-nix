@@ -146,11 +146,11 @@ in
         lib.concatMap
           (p: map changeRelativityToHere p.purs-nix-info-extra.srcs)
           localDependencies;
-      foreign = meta.foreign or null;
 
-      psArgs = {
+      psArgs = lib.filterAttrs (_: v: v != null) {
+        inherit dependencies;
         dir = root;
-        inherit dependencies foreign;
+        foreign = meta.foreign or null;
       };
       ps = purs-nix.purs psArgs;
       psLocal = purs-nix.purs (psArgs // {
