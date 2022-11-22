@@ -3,7 +3,8 @@
 let
   isRemotePackage = p:
     lib.hasAttr "repo" p.purs-nix-info
-    || lib.hasAttr "flake" p.purs-nix-info;
+    || lib.hasAttr "flake" p.purs-nix-info
+    || (! lib.hasAttr "purs-nix-info-extra" p);
 
   allDependenciesOf = ps:
     # Get the dependencies the given list of packages depends on, excluding
