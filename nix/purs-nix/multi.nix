@@ -153,7 +153,7 @@ in
         dir = root;
         foreign = meta.foreign or null;
         test-module = meta.test-module or null;
-        test-dependencies = meta.test-dependencies or null;
+        test-dependencies = map (name: ps-pkgs.${name}) (meta.test-dependencies or [ ]);
       };
       ps = purs-nix.purs psArgs;
       psLocal = purs-nix.purs (psArgs // {
