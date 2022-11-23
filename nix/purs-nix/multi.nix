@@ -213,7 +213,7 @@ in
             mySrcs = map (p: rootRelativeToProjectRoot + "/" + p) meta.srcs;
           in
           {
-            inherit ps rootRelativeToProjectRoot outputDir;
+            inherit ps psLocal rootRelativeToProjectRoot outputDir;
             # NOTE: This purs-nix command is valid inasmuch as it
             # launched from PWD being the base directory of this
             # package's purs.nix file.
