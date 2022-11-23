@@ -159,6 +159,12 @@ in
       psLocal = purs-nix.purs (psArgs // {
         # Exclude local dependencies (they are specified in 'srcs' latter)
         dependencies = nonLocalDependencies ++ allDependenciesOf localDependencies;
+        test-dependencies =
+          let
+            nonLocalTestDependencies = lib.filter (p: isRemotePackage p) psArgs.test-dependencies;
+            localTestDependencies = lib.filter (p: !isRemotePackage p) psArgs.test-dependencies;
+          in
+          nonLocalTestDependencies ++ allDependenciesOf localTestDependencies;
       });
       buildInfo = lib.filterAttrs (_: v: v != null) {
         inherit dependencies;
