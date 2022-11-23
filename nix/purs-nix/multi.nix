@@ -6,6 +6,13 @@ let
     || lib.hasAttr "flake" p.purs-nix-info
     || (! lib.hasAttr "purs-nix-info-extra" p);
 
+  # Partition a dependencies list into local and non-local dependencies
+  partitionDependencies = deps: {
+    non-local = lib.filter (p: isRemotePackage p) deps;
+    local = lib.filter (p: !isRemotePackage p) deps;
+  };
+
+
   allDependenciesOf = ps:
     # Get the dependencies the given list of packages depends on, excluding
     # those packages themselves.
@@ -141,12 +148,16 @@ in
         inherit pkgs npmlock2nix;
       };
       dependencies = map (name: ps-pkgs.${ name}) meta.dependencies;
-      nonLocalDependencies = lib.filter (p: isRemotePackage p) dependencies;
-      localDependencies = lib.filter (p: !isRemotePackage p) dependencies;
+      deps-p = partitionDependencies dependencies;
+
+      # Exclude local dependencies (they are specified in 'srcs' latter)
+      mergeExcludingLocal = depsPartition: 
+        depsPartition.non-local ++ allDependenciesOf depsPartition.local;
+      
       localDependenciesSrcGlobs =
         lib.concatMap
           (p: map changeRelativityToHere p.purs-nix-info-extra.srcs)
-          localDependencies;
+          deps-p.local;
 
       psArgs = lib.filterAttrs (_: v: v != null) {
         inherit dependencies;
@@ -158,13 +169,10 @@ in
       ps = purs-nix.purs psArgs;
       psLocal = purs-nix.purs (psArgs // {
         # Exclude local dependencies (they are specified in 'srcs' latter)
-        dependencies = nonLocalDependencies ++ allDependenciesOf localDependencies;
+        dependencies = 
+          mergeExcludingLocal deps-p;
         test-dependencies =
-          let
-            nonLocalTestDependencies = lib.filter (p: isRemotePackage p) psArgs.test-dependencies;
-            localTestDependencies = lib.filter (p: !isRemotePackage p) psArgs.test-dependencies;
-          in
-          nonLocalTestDependencies ++ allDependenciesOf localTestDependencies;
+          mergeExcludingLocal (partitionDependencies psArgs.test-dependencies);
       });
       buildInfo = lib.filterAttrs (_: v: v != null) {
         inherit dependencies;
