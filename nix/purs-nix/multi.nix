@@ -166,14 +166,15 @@ in
         test-module = meta.test-module or null;
         test-dependencies = map (name: ps-pkgs.${name}) (meta.test-dependencies or [ ]);
       };
-      ps = purs-nix.purs psArgs;
-      psLocal = purs-nix.purs (psArgs // {
+      psLocalArgs = psArgs // {
         # Exclude local dependencies (they are specified in 'srcs' latter)
         dependencies = 
           mergeExcludingLocal deps-p;
         test-dependencies =
           mergeExcludingLocal (partitionDependencies psArgs.test-dependencies);
-      });
+      };
+      ps = purs-nix.purs psArgs;
+      psLocal = purs-nix.purs psLocalArgs;
       buildInfo = lib.filterAttrs (_: v: v != null) {
         inherit dependencies;
         foreign = meta.foreign or null;
@@ -213,7 +214,7 @@ in
             mySrcs = map (p: rootRelativeToProjectRoot + "/" + p) meta.srcs;
           in
           {
-            inherit ps psLocal rootRelativeToProjectRoot outputDir;
+            inherit ps psLocal psArgs psLocalArgs rootRelativeToProjectRoot outputDir;
             # NOTE: This purs-nix command is valid inasmuch as it
             # launched from PWD being the base directory of this
             # package's purs.nix file.
