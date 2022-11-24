@@ -12,21 +12,21 @@ let
     local = lib.filter (p: !isRemotePackage p) deps;
   };
 
-
   allDependenciesOf = ps:
     # Get the dependencies the given list of packages depends on, excluding
     # those packages themselves.
     lib.subtractLists ps
       (lib.concatMap (p: p.purs-nix-info.dependencies) ps);
 
+  # Flatten the dependency list to include all transitive deps recursively.
+  #
   # [Package] -> [Package]
   getDependenciesRecursively = dependencies:
     (purs-nix.purs
-      { inherit dependencies;
+      {
+        inherit dependencies;
       }
     ).dependencies;
-      
-    # p.purs-nix-info-extra.ps.dependencies;
 
   npmlock2nix = import inputs.npmlock2nix {
     inherit pkgs;
@@ -163,20 +163,22 @@ in
 
       allDamnDeps = getDependenciesRecursively psArgs.dependencies;
       allDamnDepsTest = getDependenciesRecursively psArgs.test-dependencies;
-      # allDamnDepsALL =  getDependenciesRecursively (psArgs.dependencies ++ psArgs.test-dependencies);
 
       localDependenciesSrcGlobs =
         lib.concatMap
           (p: map changeRelativityToHere p.purs-nix-info-extra.srcs)
           ((partitionDependencies allDamnDeps).local);
       # [String]
-      # EG:
+      # Eg:
       #  ["../../array/src" "../../pre/src"]
       localDependenciesSrcGlobsTest =
         lib.concatMap
           (p: map changeRelativityToHere p.purs-nix-info-extra.srcs)
           ((partitionDependencies allDamnDepsTest).local);
 
+      # HACK: There is no 'test-srcs', only 'test' in purs-nix command.
+      # We inject the necessary code to build the expected test globs.
+      #
       # String
       localDependenciesSrcGlobsTestCodeInjection =
         let
@@ -186,7 +188,7 @@ in
         if builtins.length localDependenciesSrcGlobsTest == 0 then
           "test"
         else
-         ''${head}/**/*.purs" ${toString (map (d: ''"${d}/**/*.purs"'') tail)} "test'';
+          ''${head}/**/*.purs" ${toString (map (d: ''"${d}/**/*.purs"'') tail)} "test'';
 
 
       psArgs = lib.filterAttrs (_: v: v != null) {
