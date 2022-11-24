@@ -12,14 +12,25 @@ let
     local = lib.filter (p: !isRemotePackage p) deps;
   };
 
-
   allDependenciesOf = ps:
     # Get the dependencies the given list of packages depends on, excluding
     # those packages themselves.
     lib.subtractLists ps
       (lib.concatMap (p: p.purs-nix-info.dependencies) ps);
 
-  npmlock2nix = import inputs.npmlock2nix { inherit pkgs; };
+  # Flatten the dependency list to include all transitive deps recursively.
+  #
+  # [Package] -> [Package]
+  getDependenciesRecursively = dependencies:
+    (purs-nix.purs
+      {
+        inherit dependencies;
+      }
+    ).dependencies;
+
+  npmlock2nix = import inputs.npmlock2nix {
+    inherit pkgs;
+  };
 in
 {
   # A purs-nix command for multi-package project.
@@ -150,14 +161,35 @@ in
       dependencies = map (name: ps-pkgs.${ name}) meta.dependencies;
       deps-p = partitionDependencies dependencies;
 
-      # Exclude local dependencies (they are specified in 'srcs' latter)
-      mergeExcludingLocal = depsPartition: 
-        depsPartition.non-local ++ allDependenciesOf depsPartition.local;
-      
+      allDamnDeps = getDependenciesRecursively psArgs.dependencies;
+      allDamnDepsTest = getDependenciesRecursively psArgs.test-dependencies;
+
       localDependenciesSrcGlobs =
         lib.concatMap
           (p: map changeRelativityToHere p.purs-nix-info-extra.srcs)
-          deps-p.local;
+          ((partitionDependencies allDamnDeps).local);
+      # [String]
+      # Eg:
+      #  ["../../array/src" "../../pre/src"]
+      localDependenciesSrcGlobsTest =
+        lib.concatMap
+          (p: map changeRelativityToHere p.purs-nix-info-extra.srcs)
+          ((partitionDependencies allDamnDepsTest).local);
+
+      # HACK: There is no 'test-srcs', only 'test' in purs-nix command.
+      # We inject the necessary code to build the expected test globs.
+      #
+      # String
+      localDependenciesSrcGlobsTestCodeInjection =
+        let
+          head = builtins.head localDependenciesSrcGlobsTest;
+          tail = builtins.tail localDependenciesSrcGlobsTest;
+        in
+        if builtins.length localDependenciesSrcGlobsTest == 0 then
+          "test"
+        else
+          ''${head}/**/*.purs" ${toString (map (d: ''"${d}/**/*.purs"'') tail)} "test'';
+
 
       psArgs = lib.filterAttrs (_: v: v != null) {
         inherit dependencies;
@@ -168,10 +200,10 @@ in
       };
       psLocalArgs = psArgs // {
         # Exclude local dependencies (they are specified in 'srcs' latter)
-        dependencies = 
-          mergeExcludingLocal deps-p;
+        dependencies =
+          (partitionDependencies allDamnDeps).non-local;
         test-dependencies =
-          mergeExcludingLocal (partitionDependencies psArgs.test-dependencies);
+          (partitionDependencies allDamnDepsTest).non-local;
       };
       ps = purs-nix.purs psArgs;
       psLocal = purs-nix.purs psLocalArgs;
@@ -213,16 +245,19 @@ in
           let
             mySrcs = map (p: rootRelativeToProjectRoot + "/" + p) meta.srcs;
           in
-          {
+          rec {
             inherit ps psLocal psArgs psLocalArgs rootRelativeToProjectRoot outputDir;
-            # NOTE: This purs-nix command is valid inasmuch as it
-            # launched from PWD being the base directory of this
-            # package's purs.nix file.
-            command = psLocal.command {
+            commandArgs = {
               output = outputDir;
               # See also psLocal's dependencies pruning above.
               srcs = localDependenciesSrcGlobs ++ map changeRelativityToHere mySrcs;
+              # HACK of HACKs
+              test = localDependenciesSrcGlobsTestCodeInjection;
             };
+            # NOTE: This purs-nix command is valid inasmuch as it
+            # launched from PWD being the base directory of this
+            # package's purs.nix file.
+            command = psLocal.command commandArgs;
             srcs = mySrcs;
           };
       };
