@@ -19,7 +19,13 @@ let
     lib.subtractLists ps
       (lib.concatMap (p: p.purs-nix-info.dependencies) ps);
 
-  npmlock2nix = import inputs.npmlock2nix { inherit pkgs; };
+  # Package -> [Package]
+  getDependenciesRecursively = p:
+    p.purs-nix-info-extra.ps.dependencies;
+
+  npmlock2nix = import inputs.npmlock2nix {
+    inherit pkgs;
+  };
 in
 {
   # A purs-nix command for multi-package project.
@@ -150,14 +156,14 @@ in
       dependencies = map (name: ps-pkgs.${ name}) meta.dependencies;
       deps-p = partitionDependencies dependencies;
 
-      # Exclude local dependencies (they are specified in 'srcs' latter)
-      mergeExcludingLocal = depsPartition: 
-        depsPartition.non-local ++ allDependenciesOf depsPartition.local;
-      
+      allDamnDeps = lib.unique (lib.concatMap getDependenciesRecursively psArgs.dependencies);
+      allDamnDepsTest = lib.unique (lib.concatMap getDependenciesRecursively psArgs.test-dependencies);
+
+      # FIXME: This should pull things out transitively!
       localDependenciesSrcGlobs =
         lib.concatMap
           (p: map changeRelativityToHere p.purs-nix-info-extra.srcs)
-          deps-p.local;
+          ((partitionDependencies allDamnDeps).local);
 
       psArgs = lib.filterAttrs (_: v: v != null) {
         inherit dependencies;
@@ -168,10 +174,10 @@ in
       };
       psLocalArgs = psArgs // {
         # Exclude local dependencies (they are specified in 'srcs' latter)
-        dependencies = 
-          mergeExcludingLocal deps-p;
+        dependencies =
+          (partitionDependencies allDamnDeps).non-local;
         test-dependencies =
-          mergeExcludingLocal (partitionDependencies psArgs.test-dependencies);
+          (partitionDependencies allDamnDepsTest).non-local;
       };
       ps = purs-nix.purs psArgs;
       psLocal = purs-nix.purs psLocalArgs;
