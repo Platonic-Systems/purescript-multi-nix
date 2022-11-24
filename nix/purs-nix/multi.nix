@@ -80,7 +80,7 @@ in
         output = "output";
       };
 
-      allCommands = localPackageCommands // { "." = toplevel-ps-command; };
+      allCommands = { "." = toplevel-ps-command; } // localPackageCommands;
 
       # Wrapper script to do the top-level dance before delegating
       # to the actual purs-nix 'command' script.
