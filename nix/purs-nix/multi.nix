@@ -163,13 +163,31 @@ in
 
       allDamnDeps = getDependenciesRecursively psArgs.dependencies;
       allDamnDepsTest = getDependenciesRecursively psArgs.test-dependencies;
-      allDamnDepsALL =  getDependenciesRecursively (psArgs.dependencies ++ psArgs.test-dependencies);
+      # allDamnDepsALL =  getDependenciesRecursively (psArgs.dependencies ++ psArgs.test-dependencies);
 
-      # FIXME: This should pull things out transitively!
       localDependenciesSrcGlobs =
         lib.concatMap
           (p: map changeRelativityToHere p.purs-nix-info-extra.srcs)
-          ((partitionDependencies allDamnDepsALL).local);
+          ((partitionDependencies allDamnDeps).local);
+      # [String]
+      # EG:
+      #  ["../../array/src" "../../pre/src"]
+      localDependenciesSrcGlobsTest =
+        lib.concatMap
+          (p: map changeRelativityToHere p.purs-nix-info-extra.srcs)
+          ((partitionDependencies allDamnDepsTest).local);
+
+      # String
+      localDependenciesSrcGlobsTestCodeInjection =
+        let
+          head = builtins.head localDependenciesSrcGlobsTest;
+          tail = builtins.tail localDependenciesSrcGlobsTest;
+        in
+        if length localDependenciesSrcGlobsTest == 0 then
+          "test"
+        else
+         ''${head}/**/*.purs" ${map (d: ''"${d}/**/*.purs"'') tail} "test'';
+
 
       psArgs = lib.filterAttrs (_: v: v != null) {
         inherit dependencies;
@@ -231,6 +249,8 @@ in
               output = outputDir;
               # See also psLocal's dependencies pruning above.
               srcs = localDependenciesSrcGlobs ++ map changeRelativityToHere mySrcs;
+              # HACK of HACKs
+              test = localDependenciesSrcGlobsTestCodeInjection;
             };
             # NOTE: This purs-nix command is valid inasmuch as it
             # launched from PWD being the base directory of this
