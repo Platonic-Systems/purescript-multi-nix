@@ -186,7 +186,7 @@ in
         if builtins.length localDependenciesSrcGlobsTest == 0 then
           "test"
         else
-         ''${head}/**/*.purs" ${map (d: ''"${d}/**/*.purs"'') tail} "test'';
+         ''${head}/**/*.purs" ${toString (map (d: ''"${d}/**/*.purs"'') tail)} "test'';
 
 
       psArgs = lib.filterAttrs (_: v: v != null) {
