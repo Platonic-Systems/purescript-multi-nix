@@ -19,10 +19,10 @@ let
     lib.subtractLists ps
       (lib.concatMap (p: p.purs-nix-info.dependencies) ps);
 
-  # Package -> [Package]
-  getDependenciesRecursively = p:
+  # [Package] -> [Package]
+  getDependenciesRecursively = dependencies:
     (purs-nix.purs
-      { inherit (p.purs-nix-info) dependencies;
+      { inherit dependencies;
       }
     ).dependencies;
       
@@ -161,8 +161,8 @@ in
       dependencies = map (name: ps-pkgs.${ name}) meta.dependencies;
       deps-p = partitionDependencies dependencies;
 
-      allDamnDeps = lib.unique (lib.concatMap getDependenciesRecursively psArgs.dependencies);
-      allDamnDepsTest = lib.unique (lib.concatMap getDependenciesRecursively psArgs.test-dependencies);
+      allDamnDeps = getDependenciesRecursively psArgs.dependencies;
+      allDamnDepsTest = getDependenciesRecursively psArgs.test-dependencies;
 
       # FIXME: This should pull things out transitively!
       localDependenciesSrcGlobs =
@@ -224,16 +224,17 @@ in
           let
             mySrcs = map (p: rootRelativeToProjectRoot + "/" + p) meta.srcs;
           in
-          {
+          rec {
             inherit ps psLocal psArgs psLocalArgs rootRelativeToProjectRoot outputDir;
-            # NOTE: This purs-nix command is valid inasmuch as it
-            # launched from PWD being the base directory of this
-            # package's purs.nix file.
-            command = psLocal.command {
+            commandArgs = {
               output = outputDir;
               # See also psLocal's dependencies pruning above.
               srcs = localDependenciesSrcGlobs ++ map changeRelativityToHere mySrcs;
             };
+            # NOTE: This purs-nix command is valid inasmuch as it
+            # launched from PWD being the base directory of this
+            # package's purs.nix file.
+            command = psLocal.command commandArgs;
             srcs = mySrcs;
           };
       };
