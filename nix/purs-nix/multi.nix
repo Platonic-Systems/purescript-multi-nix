@@ -163,12 +163,13 @@ in
 
       allDamnDeps = getDependenciesRecursively psArgs.dependencies;
       allDamnDepsTest = getDependenciesRecursively psArgs.test-dependencies;
+      allDamnDepsALL =  getDependenciesRecursively (psArgs.dependencies ++ psArgs.test-dependencies);
 
       # FIXME: This should pull things out transitively!
       localDependenciesSrcGlobs =
         lib.concatMap
           (p: map changeRelativityToHere p.purs-nix-info-extra.srcs)
-          ((partitionDependencies allDamnDeps).local);
+          ((partitionDependencies allDamnDepsALL).local);
 
       psArgs = lib.filterAttrs (_: v: v != null) {
         inherit dependencies;
