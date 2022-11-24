@@ -183,7 +183,7 @@ in
           head = builtins.head localDependenciesSrcGlobsTest;
           tail = builtins.tail localDependenciesSrcGlobsTest;
         in
-        if length localDependenciesSrcGlobsTest == 0 then
+        if builtins.length localDependenciesSrcGlobsTest == 0 then
           "test"
         else
          ''${head}/**/*.purs" ${map (d: ''"${d}/**/*.purs"'') tail} "test'';
