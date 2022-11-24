@@ -21,7 +21,12 @@ let
 
   # Package -> [Package]
   getDependenciesRecursively = p:
-    p.purs-nix-info-extra.ps.dependencies;
+    (purs-nix.purs
+      { inherit (p.purs-nix-info) dependencies;
+      }
+    ).dependencies;
+      
+    # p.purs-nix-info-extra.ps.dependencies;
 
   npmlock2nix = import inputs.npmlock2nix {
     inherit pkgs;
