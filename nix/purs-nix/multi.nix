@@ -132,14 +132,17 @@ in
           tree_root=$(find_up "flake.nix")
           pwd_rel=$(realpath --relative-to=$tree_root .)
 
-          echo "> purs-nix metadata gathered"
-          echo "Project root: $tree_root"
-          echo "PWD: `pwd`"
-          echo "PWD, relative: $pwd_rel"
+          echo "|| ============================================================================"
+          echo "|| purs-nix multi.nix prototype: https://github.com/purs-nix/purs-nix/issues/36"
+          echo "|| Project root: $tree_root"
+          echo "|| PWD: `pwd`"
+          echo "|| PWD, relative: $pwd_rel"
           cd $tree_root
 
-          echo "Registered purs-nix commands:"
-          echo -e "\t${lib.concatStringsSep "\n\t" (lib.mapAttrsToList (n: v: "${n} => ${lib.getExe v} ") allCommands)}"
+          echo "|| Registered purs-nix commands:"
+          echo -e "||  ${lib.concatStringsSep "\n||  " (lib.mapAttrsToList (n: v: "${n} => ${lib.getExe v} ") allCommands)}"
+          echo "|| ============================================================================"
+
           echo
           echo "> Delegating to the appropriate purs-nix 'command' ..."
           case "$pwd_rel" in 
