@@ -1,3 +1,10 @@
+# Temporary implementation of https://github.com/purs-nix/purs-nix/issues/36
+#
+# To be removed once purs-nix implements the spec.
+#
+# WARNING: As this file is more of a temporary prototype, hacks abound. This
+# fine; when we properly implement this in purs-nix, the code there will be
+# refactored/ simplified.
 { self, pkgs, lib, purs-nix, inputs }:
 
 let
@@ -125,14 +132,17 @@ in
           tree_root=$(find_up "flake.nix")
           pwd_rel=$(realpath --relative-to=$tree_root .)
 
-          echo "> purs-nix metadata gathered"
-          echo "Project root: $tree_root"
-          echo "PWD: `pwd`"
-          echo "PWD, relative: $pwd_rel"
+          echo "|| ============================================================================"
+          echo "|| purs-nix multi.nix prototype: https://github.com/purs-nix/purs-nix/issues/36"
+          echo "|| Project root: $tree_root"
+          echo "|| PWD: `pwd`"
+          echo "|| PWD, relative: $pwd_rel"
           cd $tree_root
 
-          echo "Registered purs-nix commands:"
-          echo -e "\t${lib.concatStringsSep "\n\t" (lib.mapAttrsToList (n: v: "${n} => ${lib.getExe v} ") allCommands)}"
+          echo "|| Registered purs-nix commands:"
+          echo -e "||  ${lib.concatStringsSep "\n||  " (lib.mapAttrsToList (n: v: "${n} => ${lib.getExe v} ") allCommands)}"
+          echo "|| ============================================================================"
+
           echo
           echo "> Delegating to the appropriate purs-nix 'command' ..."
           case "$pwd_rel" in 
@@ -159,7 +169,6 @@ in
         inherit pkgs npmlock2nix;
       };
       dependencies = map (name: ps-pkgs.${ name}) meta.dependencies;
-      deps-p = partitionDependencies dependencies;
 
       allDamnDeps = getDependenciesRecursively psArgs.dependencies;
       allDamnDepsTest = getDependenciesRecursively psArgs.test-dependencies;
