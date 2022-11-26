@@ -1,3 +1,10 @@
+# Temporary implementation of https://github.com/purs-nix/purs-nix/issues/36
+#
+# To be removed once purs-nix implements the spec.
+#
+# WARNING: As this file is more of a temporary prototype, hacks abound. This
+# fine; when we properly implement this in purs-nix, the code there will be
+# refactored/ simplified.
 { self, pkgs, lib, purs-nix, inputs }:
 
 let
@@ -159,7 +166,6 @@ in
         inherit pkgs npmlock2nix;
       };
       dependencies = map (name: ps-pkgs.${ name}) meta.dependencies;
-      deps-p = partitionDependencies dependencies;
 
       allDamnDeps = getDependenciesRecursively psArgs.dependencies;
       allDamnDepsTest = getDependenciesRecursively psArgs.test-dependencies;
