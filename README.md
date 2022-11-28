@@ -69,7 +69,7 @@ The dev shell is a **work-in-progress**.
 
 ### Multi-package command (WIP)
 
-This repo implements https://github.com/purs-nix/purs-nix/issues/36 but outside of purs-nix (see `purs-nix.nix`). It also acts as a stepping step towards actually implementing the aforementioned proposal in purs-nix itself.
+This repo implements https://github.com/purs-nix/purs-nix/issues/36 but outside of purs-nix (see `multi.nix`). It also acts as a stepping stone towards actually implementing the aforementioned proposal in purs-nix itself.
 
 - It creates a wrapper bash script to implement the above. Run `purs-nix` in devshell, and it will do the right thing depending on your $PWD. 
   - For example, `cd ./foo && purs-nix run` will try to run the foo package. This will, of course fail because there is no `Main` entry point in the foo package (unless, of course, your "output" directory already compiles compiled assets for ./bar). Try `cd ./bar && purs-nix run` instead, and it will do what `nix run` does.
