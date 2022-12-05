@@ -204,6 +204,7 @@ in
         inherit dependencies;
         dir = root;
         foreign = meta.foreign or null;
+        test = meta.test or null;
         test-module = meta.test-module or null;
         test-dependencies = map (name: ps-pkgs.${name}) (meta.test-dependencies or [ ]);
       };
