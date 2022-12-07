@@ -266,7 +266,7 @@ in
             mySrcs = map (p: rootRelativeToProjectRoot + "/" + p) meta.srcs;
           in
           rec {
-            inherit ps psLocal psArgs psLocalArgs rootRelativeToProjectRoot outputDir;
+            inherit meta ps psLocal psArgs psLocalArgs rootRelativeToProjectRoot outputDir;
             commandArgs = {
               output = outputDir;
               # See also psLocal's dependencies pruning above.
