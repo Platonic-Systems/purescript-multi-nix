@@ -214,6 +214,15 @@ in
           (partitionDependencies allDamnDeps).non-local;
         test-dependencies =
           (partitionDependencies allDamnDepsTest).non-local;
+        foreign =
+          builtins.foldl'
+            (acc: pkg:
+              # NOTE: We assume that there is no overlap in transitive foreign deps.
+              acc //
+                (pkg.purs-nix-info.foreign or { })
+            )
+            (meta.foreign or { })
+            (partitionDependencies allDamnDeps).local;
       };
       ps = purs-nix.purs psArgs;
       psLocal = purs-nix.purs psLocalArgs;
@@ -264,6 +273,7 @@ in
               # HACK of HACKs
               test = localDependenciesSrcGlobsTestCodeInjection;
               bundle.module = meta.main-module or "Main";
+
             };
             # NOTE: This purs-nix command is valid inasmuch as it
             # launched from PWD being the base directory of this
