@@ -203,6 +203,7 @@ in
       psArgs = lib.filterAttrs (_: v: v != null) {
         inherit dependencies;
         dir = root;
+        srcs = meta.srcs or [ "src" ];
         foreign = meta.foreign or null;
         test = meta.test or null;
         test-module = meta.test-module or null;
