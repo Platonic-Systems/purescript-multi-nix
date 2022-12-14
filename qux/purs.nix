@@ -9,5 +9,8 @@
     "foo"
     "prelude"
   ];
-  foreign.Main.node_modules = npmlock2nix.node_modules { src = ./.; } + "/node_modules";
+  foreign.Main = {
+    type = "npm";
+    path = ./.;
+  };
 }
