@@ -79,12 +79,15 @@
           shellHook =
             let
               projectName = "purescript-multi-nix";
-              packages = [ config.purs-nix-multi.multi-command ];
+              packages = [
+                config.purs-nix-multi.multi-command
+                config.purs-nix.purescript
+              ];
             in
             ''
               echo -e "\033[1;31m### 🔨 Welcome to ${projectName} devshell ###\n\033[0m"
               echo -e "\033[1;36m[Commands]\n\033[0m"
-              echo "${lib.concatMapStringsSep "\n" (p: "\t${lib.getName p} - ${p.meta.description}") packages}"
+              echo "${lib.concatMapStringsSep "\n" (p: "  ${lib.getName p} \t: ${p.meta.description or ""}") packages}" | ${pkgs.util-linux}/bin/column -t -s $'\t'
               echo
             '';
         };
