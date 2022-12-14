@@ -114,6 +114,14 @@ in
             #!${pkgs.runtimeShell}
             set -euo pipefail
 
+            if [ $# -eq 0 ]; then
+              echo "ERROR: Provide the first argument to this script; it must be the path to the local package for which you intent to run purs-nix on. Use '.' if you want to use the currenct directory." >&2
+              exit 1;
+            else
+              cd "$1"
+              shift;
+            fi
+
             find_up() {
               ancestors=()
               while true; do
@@ -162,7 +170,7 @@ in
         };
     in
     wrapper.overrideAttrs (oa: {
-      meta.description = "purs-nix wrapper for monorepo; eg.: cd lib/foo && purs-nix test";
+      meta.description = "purs-nix wrapper for monorepo; eg.: purs-nix lib/foo test";
     });
 
   # Build a local PureScript package
