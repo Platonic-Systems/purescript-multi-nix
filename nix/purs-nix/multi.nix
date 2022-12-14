@@ -161,8 +161,9 @@ in
           '';
         };
     in
-    wrapper;
-
+    wrapper.overrideAttrs (oa: {
+      meta.description = "purs-nix wrapper for monorepo; eg.: cd lib/foo && purs-nix test";
+    });
 
   # Build a local PureScript package
   build-local-package = ps-pkgs: root:
