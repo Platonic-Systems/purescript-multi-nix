@@ -187,9 +187,7 @@ in
   build-local-package = ps-pkgs: root:
     let
       # Arguments to pass to purs-nix's "build" function.
-      meta = import "${root}/purs.nix" {
-        inherit pkgs npmlock2nix;
-      };
+      meta = import "${root}/purs.nix";
       dependencies = map (name: ps-pkgs.${ name}) meta.dependencies;
 
       allDamnDeps = getDependenciesRecursively psArgs.dependencies;

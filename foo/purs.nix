@@ -1,5 +1,3 @@
-{ pkgs, ... }:
-
 {
   name = "foo";
   srcs = [ "src" ];
