@@ -114,14 +114,18 @@ in
             #!${pkgs.runtimeShell}
             set -euo pipefail
 
+            function log () {
+              echo "$@" >&2
+            }
+
             if [ $# -eq 0 ]; then
-              echo "ERROR: Provide the first argument to this script; it must be the path to the local package for which you intend to run purs-nix on. Use '.' if you want to use the current directory." >&2
-              echo "Available local package paths are:" >&2
+              log "ERROR: Provide the first argument to this script; it must be the path to the local package for which you intend to run purs-nix on. Use '.' if you want to use the current directory."
+              log "Available local package paths are:"
               ${
-                lib.concatStringsSep "\n" (map (path: "echo \"\t${path}\" >&2;")
+                lib.concatStringsSep "\n" (map (path: "log \"\t${path}\";")
                   (lib.attrNames allCommands))
               }
-              echo "TIP: Run 'purs-nix <pick-one-from-above> ...'" >&2
+              log "TIP: Run 'purs-nix <pick-one-from-above> ...'" 
               exit 1;
             else
               cd "$1"
@@ -137,7 +141,7 @@ in
                 fi
                 ancestors+=("$PWD")
                 if [[ $PWD == / ]] || [[ $PWD == // ]]; then
-                  echo "ERROR: Unable to locate the projectRootFile ($1) in any of: ''${ancestors[*]@Q}" >&2
+                  log "ERROR: Unable to locate the projectRootFile ($1) in any of: ''${ancestors[*]@Q}"
                   exit 1
                 fi
                 cd ..
@@ -148,19 +152,19 @@ in
             tree_root=$(find_up "flake.nix")
             pwd_rel=$(realpath --relative-to="$tree_root" .)
 
-            echo "|| ============================================================================"
-            echo "|| purs-nix multi.nix prototype: https://github.com/purs-nix/purs-nix/issues/36"
-            echo "|| Project root: $tree_root"
-            echo "|| PWD: $(pwd)"
-            echo "|| PWD, relative: $pwd_rel"
+            log "|| ============================================================================"
+            log "|| purs-nix multi.nix prototype: https://github.com/purs-nix/purs-nix/issues/36"
+            log "|| Project root: $tree_root"
+            log "|| PWD: $(pwd)"
+            log "|| PWD, relative: $pwd_rel"
             cd "$tree_root"
 
-            echo "|| Registered purs-nix commands:"
-            echo -e "||  ${lib.concatStringsSep "\n||  " (lib.mapAttrsToList (n: v: "${n} => ${lib.getExe v} ") allCommands)}"
-            echo "|| ============================================================================"
+            log "|| Registered purs-nix commands:"
+            log -e "||  ${lib.concatStringsSep "\n||  " (lib.mapAttrsToList (n: v: "${n} => ${lib.getExe v} ") allCommands)}"
+            log "|| ============================================================================"
 
-            echo
-            echo "> Delegating to the appropriate purs-nix 'command' ..."
+            log
+            log "> Delegating to the appropriate purs-nix 'command' ..."
             case "$pwd_rel" in 
               ${
                 builtins.foldl' (acc: path: acc + caseBlockFor path)
@@ -168,7 +172,7 @@ in
                   (lib.attrNames allCommands)
               }
               *)
-                echo "ERROR: Unable to find a purs-nix command for the current directory ($pwd_rel)" >&2
+                log "ERROR: Unable to find a purs-nix command for the current directory ($pwd_rel)" >&2
                 exit 1
                 ;;
             esac
