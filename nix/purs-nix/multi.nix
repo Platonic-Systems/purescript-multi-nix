@@ -116,6 +116,12 @@ in
 
             if [ $# -eq 0 ]; then
               echo "ERROR: Provide the first argument to this script; it must be the path to the local package for which you intent to run purs-nix on. Use '.' if you want to use the currenct directory." >&2
+              echo "Available local package paths are:" >&2
+              ${
+                lib.concatStringsSep "\n" (map (path: "echo \"\t${path}\" >&2;")
+                  (lib.attrNames allCommands))
+              }
+              echo "TIP: Run 'purs-nix <pick-one-from-above> ...'" >&2
               exit 1;
             else
               cd "$1"
