@@ -104,59 +104,62 @@ in
               ${path})
                 set -x
                 cd ${path}
-                ${lib.getExe command} $*
+                ${lib.getExe command} "$@"
                 ;;
             '';
         in
-        pkgs.writeShellScriptBin "purs-nix" ''
-          #!${pkgs.runtimeShell}
-          set -euo pipefail
+        pkgs.writeShellApplication {
+          name = "purs-nix";
+          text = ''
+            #!${pkgs.runtimeShell}
+            set -euo pipefail
 
-          find_up() {
-            ancestors=()
-            while true; do
-              if [[ -f $1 ]]; then
-                echo "$PWD"
-                exit 0
-              fi
-              ancestors+=("$PWD")
-              if [[ $PWD == / ]] || [[ $PWD == // ]]; then
-                echo "ERROR: Unable to locate the projectRootFile ($1) in any of: ''${ancestors[*]@Q}" >&2
-                exit 1
-              fi
-              cd ..
-            done
-          }
-
-          # TODO: make configurable
-          tree_root=$(find_up "flake.nix")
-          pwd_rel=$(realpath --relative-to=$tree_root .)
-
-          echo "|| ============================================================================"
-          echo "|| purs-nix multi.nix prototype: https://github.com/purs-nix/purs-nix/issues/36"
-          echo "|| Project root: $tree_root"
-          echo "|| PWD: `pwd`"
-          echo "|| PWD, relative: $pwd_rel"
-          cd $tree_root
-
-          echo "|| Registered purs-nix commands:"
-          echo -e "||  ${lib.concatStringsSep "\n||  " (lib.mapAttrsToList (n: v: "${n} => ${lib.getExe v} ") allCommands)}"
-          echo "|| ============================================================================"
-
-          echo
-          echo "> Delegating to the appropriate purs-nix 'command' ..."
-          case "$pwd_rel" in 
-            ${
-              builtins.foldl' (acc: path: acc + caseBlockFor path)
-                ""
-                (lib.attrNames allCommands)
+            find_up() {
+              ancestors=()
+              while true; do
+                if [[ -f $1 ]]; then
+                  echo "$PWD"
+                  exit 0
+                fi
+                ancestors+=("$PWD")
+                if [[ $PWD == / ]] || [[ $PWD == // ]]; then
+                  echo "ERROR: Unable to locate the projectRootFile ($1) in any of: ''${ancestors[*]@Q}" >&2
+                  exit 1
+                fi
+                cd ..
+              done
             }
-            *)
-              echo "ERROR: Unable to find a purs-nix command for the current directory ($pwd_rel)" >&2
-              exit 1
-              ;;
-          esac
-        '';
+
+            # TODO: make configurable
+            tree_root=$(find_up "flake.nix")
+            pwd_rel=$(realpath --relative-to="$tree_root" .)
+
+            echo "|| ============================================================================"
+            echo "|| purs-nix multi.nix prototype: https://github.com/purs-nix/purs-nix/issues/36"
+            echo "|| Project root: $tree_root"
+            echo "|| PWD: $(pwd)"
+            echo "|| PWD, relative: $pwd_rel"
+            cd "$tree_root"
+
+            echo "|| Registered purs-nix commands:"
+            echo -e "||  ${lib.concatStringsSep "\n||  " (lib.mapAttrsToList (n: v: "${n} => ${lib.getExe v} ") allCommands)}"
+            echo "|| ============================================================================"
+
+            echo
+            echo "> Delegating to the appropriate purs-nix 'command' ..."
+            case "$pwd_rel" in 
+              ${
+                builtins.foldl' (acc: path: acc + caseBlockFor path)
+                  ""
+                  (lib.attrNames allCommands)
+              }
+              *)
+                echo "ERROR: Unable to find a purs-nix command for the current directory ($pwd_rel)" >&2
+                exit 1
+                ;;
+            esac
+          '';
+        };
     in
     wrapper;
 
