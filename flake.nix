@@ -63,9 +63,9 @@
             bar = nodejsApp "bar" self'.packages.bar-js;
             qux = nodejsApp "qux" self'.packages.qux-js;
           };
-        devShells.default = pkgs.mkShell {
+        devShells.default = pkgs.mkShellNoCC rec {
           name = "purescript-multi-nix";
-          buildInputs =
+          packages =
             let
               ps-tools = inputs.purs-nix.inputs.ps-tools.legacyPackages.${system};
             in
@@ -76,20 +76,12 @@
               ps-tools.for-0_15.purs-tidy
               pkgs.nixpkgs-fmt
             ];
-          shellHook =
-            let
-              projectName = "purescript-multi-nix";
-              packages = [
-                config.purs-nix-multi.multi-command
-                config.purs-nix.purescript
-              ];
-            in
-            ''
-              echo -e "\033[1;31m### 🔨 Welcome to ${projectName} devshell ###\n\033[0m"
-              echo -e "\033[1;36m[Commands]\n\033[0m"
-              echo "${lib.concatMapStringsSep "\n" (p: "  ${lib.getName p} \t: ${p.meta.description or ""}") packages}" | ${pkgs.util-linux}/bin/column -t -s $'\t'
-              echo
-            '';
+          shellHook = ''
+            echo -e "\033[1;31m### 🔨 Welcome to ${name} devshell ###\n\033[0m"
+            echo -e "\033[1;36m[Commands]\n\033[0m"
+            echo "${lib.concatMapStringsSep "\n" (p: "  ${lib.getName p} \t: ${p.meta.description or ""}") packages}" | ${pkgs.util-linux}/bin/column -t -s $'\t'
+            echo
+          '';
         };
         formatter = pkgs.nixpkgs-fmt;
       };
