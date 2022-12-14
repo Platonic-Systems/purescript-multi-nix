@@ -187,9 +187,7 @@ in
   build-local-package = ps-pkgs: root:
     let
       # Arguments to pass to purs-nix's "build" function.
-      meta = import "${root}/purs.nix" {
-        inherit pkgs npmlock2nix;
-      };
+      meta = import "${root}/purs.nix";
       dependencies = map (name: ps-pkgs.${ name}) meta.dependencies;
 
       allDamnDeps = getDependenciesRecursively psArgs.dependencies;
@@ -221,12 +219,28 @@ in
         else
           ''${head}/**/*.purs" ${toString (map (d: ''"${d}/**/*.purs"'') tail)} "test'';
 
+      foreignImpl = {
+        # Compile to https://github.com/purs-nix/purs-nix/blob/master/docs/foreign.md
+        npm = src: {
+          node_modules =
+            (npmlock2nix.node_modules { inherit src; }) + /node_modules;
+        };
+        js = src: {
+          inherit src;
+        };
+      };
+      evalForeign = foreign:
+        lib.mapAttrs
+          (_: meta:
+            foreignImpl.${meta.type} meta.path
+          )
+          foreign;
 
       psArgs = lib.filterAttrs (_: v: v != null) {
         inherit dependencies;
         dir = root;
         srcs = meta.srcs or [ "src" ];
-        foreign = meta.foreign or null;
+        foreign = evalForeign (meta.foreign or { });
         test = meta.test or null;
         test-module = meta.test-module or null;
         test-dependencies = map (name: ps-pkgs.${name}) (meta.test-dependencies or [ ]);
@@ -244,7 +258,7 @@ in
               acc //
                 (pkg.purs-nix-info.foreign or { })
             )
-            (meta.foreign or { })
+            (evalForeign (meta.foreign or { }))
             (partitionDependencies allDamnDeps).local;
       };
       ps = purs-nix.purs psArgs;
