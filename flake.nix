@@ -82,7 +82,7 @@
               packages = [ config.purs-nix-multi.multi-command ];
             in
             ''
-              echo -e "\033[1;31m### 💩 Welcome to ${projectName} devshell ###\n\033[0m"
+              echo -e "\033[1;31m### 🔨 Welcome to ${projectName} devshell ###\n\033[0m"
               echo -e "\033[1;36m[Commands]\n\033[0m"
               echo "${lib.concatMapStringsSep "\n" (p: "\t${lib.getName p} - ${p.meta.description}") packages}"
               echo
