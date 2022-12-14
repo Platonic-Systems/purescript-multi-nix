@@ -115,7 +115,7 @@ in
             set -euo pipefail
 
             if [ $# -eq 0 ]; then
-              echo "ERROR: Provide the first argument to this script; it must be the path to the local package for which you intent to run purs-nix on. Use '.' if you want to use the currenct directory." >&2
+              echo "ERROR: Provide the first argument to this script; it must be the path to the local package for which you intend to run purs-nix on. Use '.' if you want to use the current directory." >&2
               echo "Available local package paths are:" >&2
               ${
                 lib.concatStringsSep "\n" (map (path: "echo \"\t${path}\" >&2;")
