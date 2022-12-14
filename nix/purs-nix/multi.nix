@@ -265,7 +265,7 @@ in
       psLocal = purs-nix.purs psLocalArgs;
       buildInfo = lib.filterAttrs (_: v: v != null) {
         inherit dependencies;
-        foreign = meta.foreign or null;
+        foreign = evalForeign (meta.foreign or { });
       };
       pkg = purs-nix.build {
         inherit (meta) name;
