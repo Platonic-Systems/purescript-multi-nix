@@ -153,7 +153,6 @@ in
             pwd_rel=$(realpath --relative-to="$tree_root" .)
 
             cd "$tree_root"
-            log "> Delegating to the appropriate purs-nix 'command' ..."
             case "$pwd_rel" in 
               ${
                 builtins.foldl' (acc: path: acc + caseBlockFor path)
