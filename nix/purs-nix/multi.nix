@@ -152,18 +152,7 @@ in
             tree_root=$(find_up "flake.nix")
             pwd_rel=$(realpath --relative-to="$tree_root" .)
 
-            log "|| ============================================================================"
-            log "|| purs-nix multi.nix prototype: https://github.com/purs-nix/purs-nix/issues/36"
-            log "|| Project root: $tree_root"
-            log "|| PWD: $(pwd)"
-            log "|| PWD, relative: $pwd_rel"
             cd "$tree_root"
-
-            log "|| Registered purs-nix commands:"
-            log -e "||  ${lib.concatStringsSep "\n||  " (lib.mapAttrsToList (n: v: "${n} => ${lib.getExe v} ") allCommands)}"
-            log "|| ============================================================================"
-
-            log
             log "> Delegating to the appropriate purs-nix 'command' ..."
             case "$pwd_rel" in 
               ${
@@ -172,7 +161,7 @@ in
                   (lib.attrNames allCommands)
               }
               *)
-                log "ERROR: Unable to find a purs-nix command for the current directory ($pwd_rel)" >&2
+                log "ERROR: Unable to find a purs-nix command for the current directory ($pwd_rel)"
                 exit 1
                 ;;
             esac
