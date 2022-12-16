@@ -228,9 +228,9 @@ in
         dir = root;
         srcs = meta.srcs or [ "src" ];
         foreign = evalForeign (meta.foreign or { });
-        test = meta.test or null;
-        test-module = meta.test-module or null;
-        test-dependencies = map (name: ps-pkgs.${name}) (meta.test-dependencies or [ ]);
+        test = (meta.test or { }).src or null;
+        test-module = (meta.test or { }).module or null;
+        test-dependencies = map (name: ps-pkgs.${name}) ((meta.test or { }).dependencies or [ ]);
       };
       psLocalArgs = psArgs // {
         # Exclude local dependencies (they are specified in 'srcs' latter)
