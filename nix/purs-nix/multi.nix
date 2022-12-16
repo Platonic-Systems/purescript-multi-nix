@@ -267,21 +267,8 @@ in
             path' = builtins.toString path;
           in
           if parent' == path' then "." else lib.removePrefix (parent' + "/") path';
-        # Given a relative path from root (`path`), construct the
-        # same but as being relative to `baseRel` (also relative to
-        # root) instead.
-        changeRelativityTo = path: baseRel:
-          let
-            # The number of directories to go back.
-            n =
-              if baseRel == "."
-              then 0
-              else lib.length (lib.splitString "/" baseRel);
-          in
-          builtins.foldl' (a: _: "../" + a) "" (lib.range 1 n) + path;
       };
       packageRootRelativeToProjectRoot = fsLib.mkRelative self root;
-      # TODO(remove): changeRelativityToHere = path: fsLib.changeRelativityTo path packageRootRelativeToProjectRoot;
       outputDir = "output";
       passthruAttrs = {
         purs-nix-info-extra =
