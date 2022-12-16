@@ -269,11 +269,12 @@ in
           if parent' == path' then "." else lib.removePrefix (parent' + "/") path';
       };
       packageRootRelativeToProjectRoot = fsLib.mkRelative self root;
+      prependPackageRoot = p: packageRootRelativeToProjectRoot + "/" + p;
       outputDir = "output";
       passthruAttrs = {
         purs-nix-info-extra =
           let
-            mySrcs = map (p: packageRootRelativeToProjectRoot + "/" + p) meta.srcs;
+            mySrcs = map prependPackageRoot meta.srcs;
           in
           rec {
             inherit meta ps psLocal psArgs psLocalArgs packageRootRelativeToProjectRoot outputDir;
