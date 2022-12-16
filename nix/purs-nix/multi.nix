@@ -202,7 +202,7 @@ in
           tail = builtins.tail localDependenciesSrcGlobsTest;
         in
         if builtins.length localDependenciesSrcGlobsTest == 0 then
-          "test"
+          prependPackageRoot "test"
         else
           ''${head}/**/*.purs" ${toString (map (d: ''"${d}/**/*.purs"'') tail)} "test'';
 
