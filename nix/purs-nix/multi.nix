@@ -77,7 +77,7 @@ in
         let
           localPackagesByPath =
             lib.groupBy
-              (p: p.passthru.purs-nix-info-extra.rootRelativeToProjectRoot)
+              (p: p.passthru.purs-nix-info-extra.packageRootRelativeToProjectRoot)
               (lib.attrValues localPackages);
         in
         lib.mapAttrs (_: p: (builtins.head p).passthru.purs-nix-info-extra.command) localPackagesByPath;
@@ -103,7 +103,6 @@ in
             ''
               ${path})
                 set -x
-                cd ${path}
                 ${lib.getExe command} "$@"
                 ;;
             '';
@@ -183,14 +182,14 @@ in
 
       localDependenciesSrcGlobs =
         lib.concatMap
-          (p: map changeRelativityToHere p.purs-nix-info-extra.srcs)
+          (p: p.purs-nix-info-extra.srcs)
           ((partitionDependencies allDamnDeps).local);
       # [String]
       # Eg:
       #  ["../../array/src" "../../pre/src"]
       localDependenciesSrcGlobsTest =
         lib.concatMap
-          (p: map changeRelativityToHere p.purs-nix-info-extra.srcs)
+          (p: p.purs-nix-info-extra.srcs)
           ((partitionDependencies allDamnDepsTest).local);
 
       # HACK: There is no 'test-srcs', only 'test' in purs-nix command.
@@ -281,20 +280,20 @@ in
           in
           builtins.foldl' (a: _: "../" + a) "" (lib.range 1 n) + path;
       };
-      rootRelativeToProjectRoot = fsLib.mkRelative self root;
-      changeRelativityToHere = path: fsLib.changeRelativityTo path rootRelativeToProjectRoot;
-      outputDir = changeRelativityToHere "output";
+      packageRootRelativeToProjectRoot = fsLib.mkRelative self root;
+      # TODO(remove): changeRelativityToHere = path: fsLib.changeRelativityTo path packageRootRelativeToProjectRoot;
+      outputDir = "output";
       passthruAttrs = {
         purs-nix-info-extra =
           let
-            mySrcs = map (p: rootRelativeToProjectRoot + "/" + p) meta.srcs;
+            mySrcs = map (p: packageRootRelativeToProjectRoot + "/" + p) meta.srcs;
           in
           rec {
-            inherit meta ps psLocal psArgs psLocalArgs rootRelativeToProjectRoot outputDir;
+            inherit meta ps psLocal psArgs psLocalArgs packageRootRelativeToProjectRoot outputDir;
             commandArgs = {
               output = outputDir;
               # See also psLocal's dependencies pruning above.
-              srcs = localDependenciesSrcGlobs ++ map changeRelativityToHere mySrcs;
+              srcs = localDependenciesSrcGlobs ++ mySrcs;
               # HACK of HACKs
               test = localDependenciesSrcGlobsTestCodeInjection;
               bundle.module = meta.main-module or "Main";
