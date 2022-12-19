@@ -285,7 +285,7 @@ in
               # HACK of HACKs
               test = localDependenciesSrcGlobsTestCodeInjection;
               bundle.module = meta.main-module or "Main";
-
+              script.module = meta.main-module or "Main";
             };
             # NOTE: This purs-nix command is valid inasmuch as it
             # launched from PWD being the base directory of this
